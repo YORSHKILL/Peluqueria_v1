@@ -3,1037 +3,741 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reserva tu Hora - Peluquería VIP & Admin</title>
-    <!-- Importación de fuentes elegantes desde Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+    <title>Peluquería Hombre - Sistema de Reservas en Línea</title>
+    <!-- Cargamos la librería oficial de Supabase para conectar la base de datos -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* Estilos generales con ambiente oscuro y premium */
+        /* Estilos generales con fondo oscuro y textura elegante de barbería */
         body {
-            font-family: 'Inter', sans-serif;
-            background: radial-gradient(circle at center, #1e1e1e 0%, #0f0f0f 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('https://images.unsplash.com/photo-1503951914875-452162b0f3f1?q=80&w=1920&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            color: #f5f5f5; 
             margin: 0;
             padding: 20px;
-            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
             min-height: 100vh;
+        }
+
+        .main-wrapper {
             display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            box-sizing: border-box;
+            align-items: flex-start;
+            gap: 25px; 
+            margin-top: 20px;
+            margin-bottom: 40px;
+            max-width: 100%;
         }
 
-        /* Botón de Acceso Admin flotante */
-        .admin-trigger-container {
-            width: 100%;
-            max-width: 650px;
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 10px;
-        }
-
-        .btn-admin-login {
-            background: rgba(30, 30, 30, 0.8);
-            border: 1px solid rgba(197, 168, 128, 0.4);
-            color: #c5a880;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 12px;
-            cursor: pointer;
-            font-weight: 600;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            transition: all 0.3s ease;
-            width: auto;
-            box-shadow: none;
-        }
-
-        .btn-admin-login:hover {
-            background: #c5a880;
-            color: #111111;
-            box-shadow: 0 0 10px rgba(197, 168, 128, 0.3);
-        }
-
-        .container {
-            max-width: 650px;
-            width: 100%;
-            background: rgba(23, 23, 23, 0.95);
-            padding: 40px 30px;
-            border-radius: 16px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
-            border: 1px solid rgba(197, 168, 128, 0.2); 
-            box-sizing: border-box;
-        }
-
-        /* --- CONTENEDOR DEL ENCABEZADO CON LOS POSTES --- */
-        .header-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 20px; 
-            margin-bottom: 5px;
-        }
-
-        h1 {
-            font-family: 'Cinzel', serif;
-            text-align: center;
-            color: #c5a880; 
-            margin: 0;
-            font-size: 32px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-        }
-
-        p.subtitle {
-            font-family: 'Inter', sans-serif;
-            text-align: center;
-            color: #8a8a8a;
-            font-weight: 300;
-            letter-spacing: 1px;
-            margin-top: 8px;
-            margin-bottom: 35px;
-        }
-
-        /* --- POSTE DE BARBERÍA MINIATURA --- */
-        .barber-pole {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        /* Postes de barbero animados con rotación continua */
+        .barber-pole-container {
+            width: 65px;
+            height: 450px;
+            border-radius: 35px;
+            overflow: hidden;
+            background-color: #f0f0f0;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
             position: relative;
+            border: 2px solid #444;
             flex-shrink: 0;
         }
 
-        .metal-cap {
-            width: 25px;
+        .barber-pole-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 200%; 
+            background-image: linear-gradient(
+                45deg,
+                #ffffff 25%,
+                #d32f2f 25%,
+                #d32f2f 50%,
+                #ffffff 50%,
+                #ffffff 75%,
+                #1976d2 75%,
+                #1976d2
+            );
+            background-size: 65px 65px; 
+            animation: barberPoleSpin 2.5s linear infinite;
+        }
+
+        @keyframes barberPoleSpin {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-65px); }
+        }
+
+        .barber-pole-cap {
+            position: absolute;
+            width: 100%;
             height: 25px;
-            background: radial-gradient(circle at 45% 35%, #ffffff 0%, #e1e1e1 25%, #9e9e9e 60%, #4a4a4a 100%);
-            border: 2px solid #000;
-            border-radius: 50%;
-            box-sizing: border-box;
+            background: linear-gradient(to bottom, #e0e0e0, #999);
+            border-radius: 35px 35px 0 0;
             z-index: 2;
         }
 
-        .metal-connector {
-            width: 31px;
-            height: 8px;
-            background: linear-gradient(to right, #4a4a4a, #8e8e8e 15%, #ffffff 40%, #e1e1e1 60%, #8e8e8e 85%, #4a4a4a);
-            border: 2px solid #000;
-            border-radius: 2px;
-            box-sizing: border-box;
-            z-index: 3;
-        }
-
-        .top-connector {
-            margin-top: -6px;
-            margin-bottom: -2px;
-        }
-
-        .bottom-connector {
-            margin-bottom: -6px;
-            margin-top: -2px;
-        }
-
-        .glass-cylinder {
-            width: 27px;
-            height: 70px;
-            border-left: 2px solid #000;
-            border-right: 2px solid #000;
-            position: relative;
-            overflow: hidden;
-            background-color: #fff;
-            z-index: 1;
-            box-sizing: border-box;
-        }
-
-        .stripes {
+        .barber-pole-cap-bottom {
+            position: absolute;
+            bottom: 0;
             width: 100%;
-            height: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            background: repeating-linear-gradient(
-                135deg,
-                #9b111e,          
-                #9b111e 8px,
-                #ffffff 8px,     
-                #ffffff 16px,
-                #124076 16px,     
-                #124076 24px,
-                #ffffff 24px,    
-                #ffffff 32px
-            );
-            background-size: 100% 45.25px; 
-            animation: rotate-pole 1.8s linear infinite;
+            height: 25px;
+            background: linear-gradient(to top, #e0e0e0, #999);
+            border-radius: 0 0 35px 35px;
+            z-index: 2;
         }
 
-        .glass-shine {
-            position: absolute;
-            top: 0;
-            left: 18%;
-            width: 5px;
-            height: 100%;
-            background: linear-gradient(to right, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0) 100%);
-            z-index: 4;
-            pointer-events: none;
+        /* Panel central translúcido difuminado */
+        .content-container {
+            width: 580px;
+            background-color: rgba(24, 24, 24, 0.88); 
+            backdrop-filter: blur(12px); 
+            -webkit-backdrop-filter: blur(12px);
+            padding: 35px;
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
-        .glass-shadow {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(to right, 
-                rgba(0,0,0,0.3) 0%, 
-                rgba(0,0,0,0) 15%, 
-                rgba(0,0,0,0) 85%, 
-                rgba(0,0,0,0.35) 100%
-            );
-            z-index: 3;
-            pointer-events: none;
+        h1 {
+            text-align: center;
+            font-size: 32px;
+            margin: 0 0 5px 0;
+            color: #ffffff;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
         }
 
-        @keyframes rotate-pole {
-            from { background-position: 0 0; }
-            to { background-position: 0 -45.25px; }
+        .subtitle {
+            text-align: center;
+            font-size: 15px;
+            color: #b3b3b3;
+            margin-bottom: 30px;
         }
 
-        /* --- ESTILOS DEL FORMULARIO VIP --- */
+        /* Estilos del Formulario de Reserva */
         .form-group {
-            margin-bottom: 22px;
+            margin-bottom: 18px;
         }
 
         label {
             display: block;
-            font-weight: 500;
+            margin-bottom: 6px;
+            color: #e0e0e0;
+            font-weight: 600;
             font-size: 14px;
-            margin-bottom: 8px;
-            color: #c5a880; 
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
         }
 
-        input, select {
+        input[type="text"], input[type="date"], select {
             width: 100%;
-            padding: 14px;
-            background-color: rgba(30, 30, 30, 0.8);
-            border: 1px solid rgba(197, 168, 128, 0.3);
-            border-radius: 8px;
-            box-sizing: border-box;
-            font-size: 15px;
+            padding: 12px 15px;
+            background-color: rgba(38, 38, 38, 0.85);
+            border: 1px solid #444;
+            border-radius: 6px;
             color: #ffffff;
-            font-family: 'Inter', sans-serif;
+            box-sizing: border-box; 
+            font-size: 15px;
             transition: all 0.3s ease;
         }
 
-        input::placeholder {
-            color: #666;
-        }
-
-        input[type="date"]::-webkit-calendar-picker-indicator {
-            filter: invert(1) sepia(50%) saturate(1000%) hue-rotate(330deg);
-            cursor: pointer;
+        input[type="text"]::placeholder {
+            color: #777;
         }
 
         input:focus, select:focus {
-            border-color: #c5a880;
-            box-shadow: 0 0 10px rgba(197, 168, 128, 0.2);
+            border-color: #d32f2f;
+            background-color: rgba(45, 45, 45, 0.95);
             outline: none;
-            background-color: rgba(40, 40, 40, 0.9);
+            box-shadow: 0 0 8px rgba(211, 47, 47, 0.4);
         }
 
-        select option:disabled {
-            color: #555555;
-            background-color: #1a1a1a;
-            font-style: italic;
-        }
-
-        button {
+        .reserve-button {
+            display: block;
             width: 100%;
-            background: linear-gradient(135deg, #c5a880 0%, #a3855c 100%);
-            color: #111111;
-            padding: 16px;
+            padding: 14px;
+            background: linear-gradient(135deg, #d32f2f, #b71c1c);
+            color: #ffffff;
             border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            border-radius: 6px;
+            font-size: 17px;
+            font-weight: bold;
             cursor: pointer;
+            margin-top: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(211, 47, 47, 0.3);
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(197, 168, 128, 0.2);
         }
 
-        button:hover {
-            background: linear-gradient(135deg, #dbbe96 0%, #b8986c 100%);
-            box-shadow: 0 6px 20px rgba(197, 168, 128, 0.4);
-            transform: translateY(-1px);
+        .reserve-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(211, 47, 47, 0.5);
+            background: linear-gradient(135deg, #e53935, #c62828);
         }
 
-        /* --- SECCIÓN DEL PANEL DE ADMINISTRACIÓN (VIP CONTROL) --- */
-        .admin-panel {
-            display: none; /* Oculto por defecto */
-            margin-top: 35px;
-            background: rgba(30, 25, 20, 0.6);
-            border: 1px dashed #c5a880;
-            border-radius: 12px;
-            padding: 25px;
-            box-sizing: border-box;
-        }
-
-        .admin-panel h3 {
-            font-family: 'Cinzel', serif;
-            color: #c5a880;
-            margin-top: 0;
-            font-size: 20px;
-            border-bottom: 1px solid rgba(197, 168, 128, 0.3);
-            padding-bottom: 10px;
+        /* Panel de Control de Ingresos de la barbería */
+        .dashboard-stats {
+            background: linear-gradient(135deg, rgba(32, 32, 32, 0.9), rgba(40, 40, 40, 0.9));
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-bottom: 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .admin-stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .stat-card {
-            background: rgba(20, 20, 20, 0.8);
-            border: 1px solid rgba(197, 168, 128, 0.1);
-            padding: 15px;
-            border-radius: 8px;
+        .stat-box {
             text-align: center;
+            flex: 1;
         }
 
-        .stat-card span {
-            display: block;
-            font-size: 12px;
-            color: #8a8a8a;
+        .stat-box:not(:last-child) {
+            border-right: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .stat-label {
+            font-size: 11px;
             text-transform: uppercase;
-            margin-bottom: 5px;
+            color: #aaa;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
         }
 
-        .stat-card strong {
-            font-size: 20px;
-            color: #ffffff;
-            font-family: 'Cinzel', serif;
-        }
-
-        .btn-close-month {
-            background: #9b111e;
-            color: white;
+        .stat-value {
+            font-size: 18px;
             font-weight: bold;
-            font-size: 13px;
-            padding: 10px;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            box-shadow: none;
-            width: auto;
-            text-transform: uppercase;
+            color: #81c784; /* Verde financiero */
         }
 
-        .btn-close-month:hover {
-            background: #be1829;
-            box-shadow: 0 4px 12px rgba(155, 17, 30, 0.4);
-        }
-
-        /* Historial de cierres de mes */
-        .closures-history {
-            margin-top: 15px;
-            background: rgba(15, 15, 15, 0.9);
-            border-radius: 8px;
-            padding: 12px;
-            max-height: 120px;
-            overflow-y: auto;
-        }
-
-        .closure-item {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            padding: 6px 0;
-        }
-
-        .closure-item:last-child {
-            border-bottom: none;
-        }
-
-        /* --- SECCIÓN DEL CALENDARIO --- */
+        /* Calendario Visual e Interactivo */
         .calendar-section {
-            margin-top: 45px;
-            border-top: 1px solid rgba(197, 168, 128, 0.2);
-            padding-top: 35px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 25px;
+            margin-bottom: 20px;
         }
 
         .calendar-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
-        .calendar-header h3 {
-            font-family: 'Cinzel', serif;
+        .nav-button {
+            background-color: rgba(60, 60, 60, 0.8);
             color: #ffffff;
-            margin: 0;
+            border: 1px solid #555;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .nav-button:hover {
+            background-color: #505050;
+            border-color: #777;
+        }
+
+        .calendar-title {
             font-size: 18px;
-            letter-spacing: 1px;
-        }
-
-        .calendar-header button {
-            width: auto;
-            padding: 8px 16px;
-            font-size: 12px;
-            background: rgba(30, 30, 30, 0.8);
-            border: 1px solid rgba(197, 168, 128, 0.3);
-            color: #c5a880;
-            box-shadow: none;
-        }
-
-        .calendar-header button:hover {
-            background: #c5a880;
-            color: #111111;
+            font-weight: bold;
+            color: #ffffff;
+            letter-spacing: 0.5px;
         }
 
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 8px;
+            gap: 5px;
+        }
+
+        .grid-header {
+            background-color: rgba(28, 28, 28, 0.9);
+            padding: 10px 0;
             text-align: center;
-        }
-
-        .day-name {
-            font-weight: 600;
-            color: #c5a880;
-            padding: 5px 0;
+            font-weight: bold;
             font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            color: #a0a0a0;
+            border-radius: 4px;
         }
 
-        .calendar-day {
-            background: rgba(35, 35, 35, 0.6);
-            color: #cccccc;
-            padding: 12px 0;
-            border-radius: 8px;
+        .grid-cell {
+            padding: 14px 0;
+            text-align: center;
+            font-size: 14px;
+            background-color: rgba(45, 45, 45, 0.6);
+            border: 1px solid rgba(255,255,255,0.02);
+            border-radius: 6px;
             cursor: pointer;
             position: relative;
-            font-weight: 500;
-            font-size: 14px;
-            border: 1px solid transparent;
             transition: all 0.2s ease;
         }
 
-        .calendar-day:hover {
-            background: rgba(197, 168, 128, 0.15);
-            border-color: rgba(197, 168, 128, 0.3);
-            color: #ffffff;
+        .grid-cell:hover {
+            background-color: rgba(70, 70, 70, 0.8);
+            transform: scale(1.03);
         }
 
-        .calendar-day.empty {
-            background: transparent;
+        .grid-cell.other-month {
+            color: #444;
             cursor: default;
+            background-color: transparent;
             border: none;
         }
-
-        .calendar-day.selected {
-            background: #c5a880 !important;
-            color: #111111 !important;
-            font-weight: 700;
-            box-shadow: 0 4px 12px rgba(197, 168, 128, 0.3);
+        
+        .grid-cell.other-month:hover {
+            background-color: transparent;
+            transform: none;
         }
 
+        .grid-cell.selected {
+            background: linear-gradient(135deg, #d32f2f, #b71c1c) !important;
+            color: #fff;
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(211, 47, 47, 0.5);
+        }
+
+        /* Círculo indicador de reservas del día */
         .has-bookings::after {
             content: '';
             position: absolute;
-            bottom: 5px;
+            bottom: 4px;
             left: 50%;
             transform: translateX(-50%);
-            width: 5px;
-            height: 5px;
-            background-color: #ff3333;
+            width: 6px;
+            height: 6px;
+            background-color: #ff5252;
             border-radius: 50%;
-            box-shadow: 0 0 6px #ff3333;
+            box-shadow: 0 0 4px #ff5252;
         }
 
-        /* Detalle del día seleccionado */
+        /* Lista de clientes agendados en la parte inferior */
         .day-details {
-            margin-top: 30px;
-            background: rgba(26, 26, 26, 0.8);
-            border: 1px solid rgba(197, 168, 128, 0.2);
-            border-radius: 10px;
-            padding: 22px;
+            background-color: rgba(33, 33, 33, 0.9);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: 15px;
         }
 
         .day-details h4 {
-            font-family: 'Cinzel', serif;
-            margin-top: 0;
-            color: #c5a880;
-            border-bottom: 1px solid rgba(197, 168, 128, 0.3);
-            padding-bottom: 12px;
-            font-size: 16px;
-            letter-spacing: 1px;
+            margin: 0 0 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 8px;
+            font-size: 15px;
+            color: #e0e0e0;
+            letter-spacing: 0.3px;
         }
 
-        .booking-list-item {
-            background: rgba(35, 35, 35, 0.9);
-            padding: 14px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            border-left: 4px solid #c5a880;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        #detailsContent {
+            font-size: 14px;
+            color: #b0b0b0;
+            line-height: 1.5;
+        }
+
+        .booking-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-        }
-
-        .booking-list-item strong { color: #ffffff; }
-        .booking-list-item small { color: #8a8a8a; }
-
-        .no-bookings {
-            color: #8a8a8a;
-            font-style: italic;
-            font-size: 14px;
-        }
-
-        /* Botón de eliminar oculto para clientes, se muestra solo a admins */
-        .delete-btn {
-            display: none; 
-            background: transparent;
-            color: #ef5350;
-            border: 1px solid rgba(239, 83, 80, 0.4);
+            background: rgba(20, 20, 20, 0.6);
+            padding: 12px 15px;
             border-radius: 6px;
+            margin-bottom: 8px;
+            border-left: 4px solid #d32f2f;
+        }
+
+        .booking-info strong {
+            color: #fff;
+            font-size: 15px;
+        }
+
+        .booking-info small {
+            color: #aaa;
+            display: block;
+            margin-top: 2px;
+        }
+
+        .delete-btn {
+            background-color: #b71c1c;
+            color: white;
+            border: none;
             padding: 6px 12px;
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
+            border-radius: 4px;
             cursor: pointer;
-            width: auto;
-            transition: all 0.2s ease;
+            font-size: 12px;
+            font-weight: 600;
+            transition: background 0.2s;
         }
 
         .delete-btn:hover {
-            background: #ef5350;
-            color: #ffffff;
-            box-shadow: 0 2px 8px rgba(239, 83, 80, 0.3);
-        }
-
-        /* Clase helper para forzar visibilidad del botón eliminar */
-        body.admin-mode-active .delete-btn {
-            display: block !important;
+            background-color: #e53935;
         }
     </style>
 </head>
 <body>
-
-<!-- Acceso Admin superior -->
-<div class="admin-trigger-container">
-    <button id="adminLoginBtn" class="btn-admin-login" onclick="toggleAdminAccess()">🔑 Acceso Admin</button>
-</div>
-
-<div class="container">
-    <div class="header-container">
-        <div class="barber-pole" aria-hidden="true">
-            <div class="metal-cap"></div>
-            <div class="metal-connector top-connector"></div>
-            <div class="glass-cylinder">
-                <div class="stripes"></div>
-                <div class="glass-shine"></div>
-                <div class="glass-shadow"></div>
-            </div>
-            <div class="metal-connector bottom-connector"></div>
-            <div class="metal-cap"></div>
+    <div class="main-wrapper">
+        <!-- Poste Izquierdo -->
+        <div class="barber-pole-container">
+            <div class="barber-pole-cap"></div>
+            <div class="barber-pole-cap-bottom"></div>
         </div>
 
-        <h1>Peluquería Hombre</h1>
+        <!-- Contenedor Principal -->
+        <div class="content-container">
+            <h1>Peluquería Hombre</h1>
+            <p class="subtitle">Reserva tu cita en pocos segundos</p>
 
-        <div class="barber-pole" aria-hidden="true">
-            <div class="metal-cap"></div>
-            <div class="metal-connector top-connector"></div>
-            <div class="glass-cylinder">
-                <div class="stripes"></div>
-                <div class="glass-shine"></div>
-                <div class="glass-shadow"></div>
+            <!-- Dashboard de ingresos financieros automáticos -->
+            <div class="dashboard-stats">
+                <div class="stat-box">
+                    <div class="stat-label">Ingresos Hoy</div>
+                    <div class="stat-value" id="ingresosDia">$0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label" id="nombreMesAnio">Ingresos Mes</div>
+                    <div class="stat-value" id="ingresosMes">$0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Total Histórico</div>
+                    <div class="stat-value" id="totales">$0</div>
+                </div>
             </div>
-            <div class="metal-connector bottom-connector"></div>
-            <div class="metal-cap"></div>
+
+            <!-- Formulario de Entrada -->
+            <form id="formReserva">
+                <div class="form-group">
+                    <label for="nombre">Nombre de Cliente</label>
+                    <input type="text" id="nombre" placeholder="Ej. Juan Pérez" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="telefono">Teléfono de Contacto</label>
+                    <input type="text" id="telefono" placeholder="Ej. +56912345678" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="servicio">Servicio a Realizar</label>
+                    <select id="servicio" required>
+                        <option value="">-- Selecciona un servicio --</option>
+                        <option value="Corte de Cabello">Corte de Cabello ($8.000)</option>
+                        <option value="Corte de Cabello / Barba">Corte de Cabello / Barba ($10.000)</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="display: flex; gap: 15px;">
+                    <div style="flex: 1;">
+                        <label for="fecha">Fecha</label>
+                        <input type="date" id="fecha" required>
+                    </div>
+                    <div style="flex: 1;">
+                        <label for="hora">Hora</label>
+                        <select id="hora" required>
+                            <option value="">-- Elige hora --</option>
+                            <option value="09:00">09:00 AM</option>
+                            <option value="10:00">10:00 AM</option>
+                            <option value="11:00">11:00 AM</option>
+                            <option value="12:00">12:00 PM</option>
+                            <option value="15:00">03:00 PM</option>
+                            <option value="16:00">04:00 PM</option>
+                            <option value="17:00">05:00 PM</option>
+                            <option value="18:00">06:00 PM</option>
+                            <option value="19:00">07:00 PM</option>
+                            <option value="20:00">08:00 PM</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="reserve-button">Confirmar y Reservar Hora</button>
+            </form>
+
+            <!-- Sección de Calendario Dinámico -->
+            <div class="calendar-section">
+                <div class="calendar-header">
+                    <button class="nav-button" id="prevMonth">◀ Ant</button>
+                    <div class="calendar-title" id="calendarTitle">Mes Año</div>
+                    <button class="nav-button" id="nextMonth">Sig ▶</button>
+                </div>
+
+                <div class="calendar-grid" id="calendarGrid"></div>
+            </div>
+
+            <!-- Bloque de Detalle de Citas del Día (Visualización de Clientes Abajo) -->
+            <div class="day-details">
+                <h4 id="detailsTitle">Selecciona un día en el calendario</h4>
+                <div id="detailsContent">Haz clic sobre cualquier fecha para ver quién reservó y gestionar las citas en tiempo real.</div>
+            </div>
+        </div>
+
+        <!-- Poste Derecho -->
+        <div class="barber-pole-container">
+            <div class="barber-pole-cap"></div>
+            <div class="barber-pole-cap-bottom"></div>
         </div>
     </div>
 
-    <p class="subtitle">Reserva tu cita en pocos segundos</p>
+    <script>
+        // =========================================================
+        // CONEXIÓN DEFINITIVA CON TU PROYECTO DE SUPABASE
+        // =========================================================
+        const SUPABASE_URL = "https://mfvxrdgkasahmfstcrhd.supabase.co";
+        // ⚠️ PEGA AQUÍ TU CLAVE COMPLETA DE ANTES DENTRO DE LAS COMILLAS:
+        const SUPABASE_ANON_KEY = "sb_publishable_8IGgK5Uisvx-t91HWf1rIqw_Hp8h21zN3U3g3M3c5W6k7X"; 
 
-    <!-- Formulario de Reserva -->
-    <form id="formReserva">
-        <div class="form-group">
-            <label for="nombre">Nombre:</label>
-            <input type="text" id="nombre" placeholder="Ej. Juan Pérez" required>
-        </div>
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        <div class="form-group">
-            <label for="telefono">Teléfono:</label>
-            <input type="text" id="telefono" placeholder="Ej. 981901260" required>
-        </div>
+        let citas = [];
+        let currentDate = new Date();
+        let currentMonth = currentDate.getMonth();
+        let currentYear = currentDate.getFullYear();
+        let selectedDateStr = "";
 
-        <div class="form-group">
-            <label for="servicio">Selecciona el Servicio:</label>
-            <select id="servicio" required>
-                <option value="">-- Selecciona --</option>
-                <option value="Corte de Cabello">Corte de Cabello $8.000</option>
-                <option value="Corte de Cabello / Afeitado">Corte de Cabello/Barba $10.000</option>
-            </select>
-        </div>
+        const mesesNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+        const diasSemana = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 
-        <div class="form-group">
-            <label for="fecha">Fecha:</label>
-            <input type="date" id="fecha" required>
-        </div>
+        window.addEventListener('DOMContentLoaded', async () => {
+            // Ponemos como fecha mínima para el formulario el día de hoy
+            const hoyStr = new Date().toISOString().split('T')[0];
+            document.getElementById('fecha').min = hoyStr;
 
-        <div class="form-group">
-            <label for="hora">Hora:</label>
-            <select id="hora" required disabled>
-                <option value="">-- Primero selecciona una fecha --</option>
-                <option value="09:00">09:00 AM</option>
-                <option value="10:00">10:00 AM</option>
-                <option value="11:00">11:00 AM</option>
-                <option value="12:00">12:00 PM</option>
-                <option value="15:00">03:00 PM</option>
-                <option value="16:00">04:00 PM</option>
-                <option value="17:00">05:00 PM</option>
-                <option value="18:00">06:00 PM</option>
-                <option value="19:00">07:00 PM</option>
-                <option value="20:00">08:00 PM</option>
-            </select>
-        </div>
-
-        <button type="submit">Reservar Hora</button>
-    </form>
-
-    <!-- PANEL EXCLUSIVO PARA ADMINISTRADOR -->
-    <div id="adminPanel" class="admin-panel">
-        <h3>💰 Panel de Control VIP <button class="btn-close-month" onclick="cerrarMesActual()">Cerrar Mes</button></h3>
-        
-        <div class="admin-stats-grid">
-            <div class="stat-card">
-                <span>Ingreso Día Seleccionado</span>
-                <strong id="diaIngresos">$0</strong>
-            </div>
-            <div class="stat-card">
-                <span>Ingreso Estimado Mes</span>
-                <strong id="mesIngresos">$0</strong>
-            </div>
-        </div>
-
-        <span style="font-size: 11px; text-transform: uppercase; color: #c5a880; font-weight: 600;">Historial de Cierres</span>
-        <div class="closures-history" id="closuresHistory">
-            <!-- Cierres mensuales listados dinámicamente -->
-        </div>
-    </div>
-
-    <!-- Sección de Calendario Dinámico -->
-    <div class="calendar-section">
-        <div class="calendar-header">
-            <button id="prevMonth">◀ Anterior</button>
-            <h3 id="calendarMonthYear">Mes Año</h3>
-            <button id="nextMonth">Siguiente ▶</button>
-        </div>
-        
-        <div class="calendar-grid" id="calendarGrid">
-            <!-- Días de la semana y celdas numéricas se inyectan con JS -->
-        </div>
-
-        <!-- Panel de Detalle del Día Seleccionado -->
-        <div class="day-details" id="dayDetails">
-            <h4 id="selectedDayTitle">Selecciona un día para ver las reservas</h4>
-            <div id="selectedDayBookings">
-                <p class="no-bookings">Haz clic en cualquier día del calendario con un punto rojo para ver qué horas están ocupadas.</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-    // Configuración base de datos local
-    let citas = JSON.parse(localStorage.getItem('citas_peluqueria')) || [];
-    let cierres = JSON.parse(localStorage.getItem('cierres_caja')) || [];
-    let isAdminMode = false;
-
-    // Valores constantes de servicios
-    const preciosServicios = {
-        "Corte de Cabello": 8000,
-        "Corte de Cabello / Afeitado": 10000
-    };
-
-    const horariosDisponibles = [
-        { valor: "09:00", texto: "09:00 AM" },
-        { valor: "10:00", texto: "10:00 AM" },
-        { valor: "11:00", texto: "11:00 AM" },
-        { valor: "12:00", texto: "12:00 PM" },
-        { valor: "15:00", texto: "03:00 PM" },
-        { valor: "16:00", texto: "04:00 PM" },
-        { valor: "17:00", texto: "05:00 PM" },
-        { valor: "18:00", texto: "06:00 PM" },
-        { valor: "19:00", texto: "07:00 PM" },
-        { valor: "20:00", texto: "08:00 PM" }
-    ];
-
-    // Calendario
-    let currentClientDate = new Date();
-    let currentMonth = currentClientDate.getMonth();
-    let currentYear = currentClientDate.getFullYear();
-    let selectedDateString = ""; 
-
-    const meses = [
-        "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
-        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-    ];
-    const diasSemana = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
-
-    window.addEventListener('DOMContentLoaded', () => {
-        renderCalendar();
-        renderCierresHistorial();
-        const hoy = new Date().toISOString().split('T')[0];
-        document.getElementById('fecha').min = hoy;
-    });
-
-    // Control de acceso de Administrador
-    function toggleAdminAccess() {
-        if (!isAdminMode) {
-            const password = prompt("Introduce la contraseña de Administrador:");
-            if (password === "admin123") { // Puedes cambiar "admin123" por tu contraseña deseada
-                isAdminMode = true;
-                document.body.classList.add('admin-mode-active');
-                document.getElementById('adminPanel').style.display = "block";
-                document.getElementById('adminLoginBtn').innerText = "🔒 Salir Admin";
-                actualizarCalculosMonetarios();
-                alert("Modo Administrador activado. Controles de ingresos y eliminación desbloqueados.");
-            } else {
-                alert("Contraseña incorrecta.");
-            }
-        } else {
-            isAdminMode = false;
-            document.body.classList.remove('admin-mode-active');
-            document.getElementById('adminPanel').style.display = "none";
-            document.getElementById('adminLoginBtn').innerText = "🔑 Acceso Admin";
-        }
-        if (selectedDateString) {
-            mostrarDetalleDia(selectedDateString);
-        }
-    }
-
-    // Calcula ingresos de un día específico
-    function calcularIngresoDia(fechaStr) {
-        return citas
-            .filter(cita => cita.fecha === fechaStr)
-            .reduce((total, cita) => total + (preciosServicios[cita.servicio] || 0), 0);
-    }
-
-    // Calcula ingresos del mes seleccionado en el calendario
-    function calcularIngresoMes(mesIndex, anio) {
-        const prefijoMes = `${anio}-${String(mesIndex + 1).padStart(2, '0')}`;
-        return citas
-            .filter(cita => cita.fecha.startsWith(prefijoMes))
-            .reduce((total, cita) => total + (preciosServicios[cita.servicio] || 0), 0);
-    }
-
-    // Actualiza la visualización de los ingresos en el Panel de Administración
-    function actualizarCalculosMonetarios() {
-        if (!isAdminMode) return;
-
-        // Ingresos del día seleccionado
-        const ingresosDia = selectedDateString ? calcularIngresoDia(selectedDateString) : 0;
-        document.getElementById('diaIngresos').innerText = `$${ingresosDia.toLocaleString('es-CL')}`;
-
-        // Ingresos del mes actual del calendario
-        const ingresosMes = calcularIngresoMes(currentMonth, currentYear);
-        document.getElementById('mesIngresos').innerText = `$${ingresosMes.toLocaleString('es-CL')}`;
-    }
-
-    // Cierre de mes definitivo
-    function cerrarMesActual() {
-        const totalMes = calcularIngresoMes(currentMonth, currentYear);
-        const nombreMesAnio = `${meses[currentMonth]} ${currentYear}`;
-
-        if (totalMes === 0) {
-            alert(`No hay registros de ingresos para archivar en ${nombreMesAnio}.`);
-            return;
-        }
-
-        if (confirm(`¿Estás seguro de que deseas cerrar la caja de ${nombreMesAnio}? Se registrará un ingreso total de $${totalMes.toLocaleString('es-CL')} y se limpiarán estas citas activas.`)) {
-            // Guardar en el historial de cierres
-            const nuevoCierre = {
-                id: 'cierre_' + Date.now(),
-                periodo: nombreMesAnio,
-                total: totalMes,
-                fechaCierre: new Date().toLocaleDateString('es-CL')
-            };
-            cierres.push(nuevoCierre);
-            localStorage.setItem('cierres_caja', JSON.stringify(cierres));
-
-            // Filtrar y eliminar las citas pertenecientes al mes cerrado para liberar espacio y agilizar el calendario
-            const prefijoMes = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
-            citas = citas.filter(cita => !cita.fecha.startsWith(prefijoMes));
-            localStorage.setItem('citas_peluqueria', JSON.stringify(citas));
-
-            // Resetear estados visuales
-            selectedDateString = "";
-            renderCalendar();
-            renderCierresHistorial();
-            actualizarCalculosMonetarios();
-            
-            // Limpiar detalle del día
-            document.getElementById('selectedDayTitle').innerText = "Selecciona un día para ver las reservas";
-            document.getElementById('selectedDayBookings').innerHTML = '<p class="no-bookings">Haz clic en cualquier día del calendario con un punto rojo para ver qué horas están ocupadas.</p>';
-            
-            alert(`Caja cerrada con éxito. El historial ha sido archivado de manera segura.`);
-        }
-    }
-
-    // Render del historial de cierres
-    function renderCierresHistorial() {
-        const contenedor = document.getElementById('closuresHistory');
-        contenedor.innerHTML = '';
-        if (cierres.length === 0) {
-            contenedor.innerHTML = '<p style="color: #666; font-size:11px; margin:0;">No se registran cierres previos.</p>';
-            return;
-        }
-        cierres.forEach(cierre => {
-            const div = document.createElement('div');
-            div.classList.add('closure-item');
-            div.innerHTML = `
-                <span>📅 ${cierre.periodo} (Cerrado: ${cierre.fechaCierre})</span>
-                <strong style="color:#c5a880;">+$${cierre.total.toLocaleString('es-CL')}</strong>
-            `;
-            contenedor.appendChild(div);
-        });
-    }
-
-    // Sincronización del selector de horas
-    document.getElementById('fecha').addEventListener('change', function() {
-        actualizarSelectHoras(this.value);
-    });
-
-    function actualizarSelectHoras(fechaSeleccionada) {
-        const horaSelect = document.getElementById('hora');
-        
-        if (!fechaSeleccionada) {
-            horaSelect.disabled = true;
-            horaSelect.innerHTML = '<option value="">-- Primero selecciona una fecha --</option>';
-            return;
-        }
-
-        const horasOcupadas = citas.filter(cita => cita.fecha === fechaSeleccionada).map(cita => cita.hora);
-        let opcionesHtml = '<option value="">-- Selecciona la hora --</option>';
-        
-        horariosDisponibles.forEach(horario => {
-            const estaOcupado = horasOcupadas.includes(horario.valor);
-            if (estaOcupado) {
-                opcionesHtml += `<option value="${horario.valor}" disabled>${horario.texto} (Ocupado)</option>`;
-            } else {
-                opcionesHtml += `<option value="${horario.valor}">${horario.texto}</option>`;
-            }
-        });
-
-        horaSelect.innerHTML = opcionesHtml;
-        horaSelect.disabled = false;
-    }
-
-    // Control de meses calendario
-    document.getElementById('prevMonth').addEventListener('click', () => {
-        currentMonth--;
-        if (currentMonth < 0) {
-            currentMonth = 11;
-            currentYear--;
-        }
-        renderCalendar();
-        actualizarCalculosMonetarios();
-    });
-
-    document.getElementById('nextMonth').addEventListener('click', () => {
-        currentMonth++;
-        if (currentMonth > 11) {
-            currentMonth = 0;
-            currentYear++;
-        }
-        renderCalendar();
-        actualizarCalculosMonetarios();
-    });
-
-    // Renderizado del calendario
-    function renderCalendar() {
-        const grid = document.getElementById('calendarGrid');
-        const title = document.getElementById('calendarMonthYear');
-        
-        grid.innerHTML = ''; 
-        title.innerText = `${meses[currentMonth]} ${currentYear}`;
-
-        diasSemana.forEach(dia => {
-            const dayNameDiv = document.createElement('div');
-            dayNameDiv.classList.add('day-name');
-            dayNameDiv.innerText = dia;
-            grid.appendChild(dayNameDiv);
-        });
-
-        const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay();
-        const totalDays = new Date(currentYear, currentMonth + 1, 0).getDate();
-
-        for (let i = 0; i < firstDayIndex; i++) {
-            const emptyDiv = document.createElement('div');
-            emptyDiv.classList.add('calendar-day', 'empty');
-            grid.appendChild(emptyDiv);
-        }
-
-        for (let day = 1; day <= totalDays; day++) {
-            const dayDiv = document.createElement('div');
-            dayDiv.classList.add('calendar-day');
-            dayDiv.innerText = day;
-
-            const formattedMonth = String(currentMonth + 1).padStart(2, '0');
-            const formattedDay = String(day).padStart(2, '0');
-            const dateStr = `${currentYear}-${formattedMonth}-${formattedDay}`;
-            dayDiv.dataset.date = dateStr;
-
-            const tieneCitas = citas.some(cita => cita.fecha === dateStr);
-            if (tieneCitas) {
-                dayDiv.classList.add('has-bookings');
-            }
-
-            if (dateStr === selectedDateString) {
-                dayDiv.classList.add('selected');
-            }
-
-            dayDiv.addEventListener('click', () => {
-                document.querySelectorAll('.calendar-day').forEach(el => el.classList.remove('selected'));
-                dayDiv.classList.add('selected');
-                selectedDateString = dateStr;
-                
-                document.getElementById('fecha').value = dateStr;
-                actualizarSelectHoras(dateStr);
-                
-                mostrarDetalleDia(dateStr);
-                actualizarCalculosMonetarios();
+            // Sincronizar el calendario cuando se cambia la fecha manualmente en el formulario
+            document.getElementById('fecha').addEventListener('change', (e) => {
+                const formDate = e.target.value;
+                if (formDate) {
+                    selectedDateStr = formDate;
+                    const dateParts = formDate.split('-');
+                    currentYear = parseInt(dateParts[0]);
+                    currentMonth = parseInt(dateParts[1]) - 1;
+                    renderCalendar();
+                    mostrarDetallesDia(selectedDateStr);
+                }
             });
 
-            grid.appendChild(dayDiv);
-        }
-    }
-
-    // Mostrar detalles de reservas por día seleccionado
-    function mostrarDetalleDia(fechaStr) {
-        const title = document.getElementById('selectedDayTitle');
-        const container = document.getElementById('selectedDayBookings');
-        
-        const [anio, mes, dia] = fechaStr.split('-');
-        title.innerText = `Citas para el ${dia}/${mes}/${anio}`;
-
-        const citasDelDia = citas.filter(cita => cita.fecha === fechaStr)
-                                 .sort((a, b) => a.hora.localeCompare(b.hora));
-
-        container.innerHTML = '';
-
-        if (citasDelDia.length === 0) {
-            container.innerHTML = '<p class="no-bookings">No hay citas agendadas para este día. ¡Todo disponible!</p>';
-            return;
-        }
-
-        citasDelDia.forEach(cita => {
-            const item = document.createElement('div');
-            item.classList.add('booking-list-item');
-            
-            // Los precios se leen del objeto de precios en JS para evitar alterar la base de datos
-            const precioFormateado = (preciosServicios[cita.servicio] || 0).toLocaleString('es-CL');
-            
-            item.innerHTML = `
-                <div>
-                    <strong>⏰ ${cita.hora} hrs</strong> - ${cita.nombre} <br>
-                    <small>💇 ${cita.servicio} ($${precioFormateado})</small>
-                </div>
-                <button class="delete-btn" onclick="cancelarCita('${cita.id}', '${fechaStr}')">Eliminar</button>
-            `;
-            container.appendChild(item);
+            // Cargar datos por primera vez
+            await cargarCitasDesdeSupabase();
         });
-    }
 
-    // Procesar envío de reserva nueva
-    document.getElementById('formReserva').addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        const nombre = document.getElementById('nombre').value.trim();
-        const servicio = document.getElementById('servicio').value;
-        const fecha = document.getElementById('fecha').value;
-        const hora = document.getElementById('hora').value;
-
-        const horaOcupada = citas.some(cita => cita.fecha === fecha && cita.hora === hora);
-
-        if (horaOcupada) {
-            alert(`Lo sentimos, la hora ${hora} ya está ocupada.`);
-            return;
-        }
-
-        const nuevaCita = {
-            id: 'id_' + Math.random().toString(36).substr(2, 9),
-            nombre,
-            servicio,
-            fecha,
-            hora
-        };
-
-        citas.push(nuevaCita);
-        localStorage.setItem('citas_peluqueria', JSON.stringify(citas));
-
-        renderCalendar();
-        actualizarSelectHoras(fecha);
-        actualizarCalculosMonetarios();
-        
-        if (fecha === selectedDateString) {
-            mostrarDetalleDia(fecha);
-        } else {
-            selectedDateString = fecha;
-            const fechaReserva = new Date(fecha + 'T00:00:00');
-            currentMonth = fechaReserva.getMonth();
-            currentYear = fechaReserva.getFullYear();
-            renderCalendar();
-            mostrarDetalleDia(fecha);
-        }
-
-        document.getElementById('formReserva').reset();
-        document.getElementById('hora').disabled = true;
-        document.getElementById('hora').innerHTML = '<option value="">-- Primero selecciona una fecha --</option>';
-        
-        alert('¡Reserva registrada con éxito!');
-    });
-
-    // Eliminación de citas (Disponible solo para administrador)
-    window.cancelarCita = function(id, fechaCita) {
-        if (!isAdminMode) {
-            alert("Acceso denegado. Solo un administrador puede eliminar citas.");
-            return;
-        }
-
-        if (confirm('¿Estás seguro de que deseas cancelar y eliminar esta reserva?')) {
-            citas = citas.filter(cita => cita.id !== id);
-            localStorage.setItem('citas_peluqueria', JSON.stringify(citas));
+        // Traer todas las citas desde la base de datos central en la nube
+        async function cargarCitasDesdeSupabase() {
+            const { data, error } = await supabase
+                .from('reservas')
+                .select('*');
             
-            renderCalendar();
-            
-            if (document.getElementById('fecha').value === fechaCita) {
-                actualizarSelectHoras(fechaCita);
+            if (error) {
+                console.error("Error cargando base de datos:", error);
+                return;
             }
-            
-            if (selectedDateString) {
-                mostrarDetalleDia(selectedDateString);
-            }
-            actualizarCalculosMonetarios();
-        }
-    }
-</script>
 
+            citas = data || [];
+            renderCalendar();
+            calcularIngresosDashboard();
+
+            // Si hay un día seleccionado, actualizar su lista inferior
+            if (selectedDateStr) {
+                mostrarDetallesDia(selectedDateStr);
+            }
+        }
+
+        // Suscripción Realtime (Actualiza la app automáticamente si alguien reserva desde otro teléfono)
+        supabase
+            .channel('schema-db-changes')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'reservas' }, () => {
+                cargarCitasDesdeSupabase();
+            })
+            .subscribe();
+
+        // Control de los meses del calendario
+        document.getElementById('prevMonth').addEventListener('click', () => {
+            currentMonth--;
+            if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+            renderCalendar();
+        });
+
+        document.getElementById('nextMonth').addEventListener('click', () => {
+            currentMonth++;
+            if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+            renderCalendar();
+        });
+
+        // Dibujar el calendario en la pantalla
+        function renderCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            const title = document.getElementById('calendarTitle');
+            grid.innerHTML = '';
+            title.innerText = `${mesesNames[currentMonth]} ${currentYear}`;
+
+            // Poner cabecera de días
+            diasSemana.forEach(dia => {
+                const dHeader = document.createElement('div');
+                dHeader.className = 'grid-header';
+                dHeader.innerText = dia;
+                grid.appendChild(dHeader);
+            });
+
+            const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay();
+            const totalDays = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+            // Espacios del mes anterior
+            for (let i = 0; i < firstDayIndex; i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.className = 'grid-cell other-month';
+                grid.appendChild(emptyCell);
+            }
+
+            // Días activos
+            for (let day = 1; day <= totalDays; day++) {
+                const cell = document.createElement('div');
+                cell.className = 'grid-cell';
+                cell.innerText = day;
+
+                const fMonth = String(currentMonth + 1).padStart(2, '0');
+                const fDay = String(day).padStart(2, '0');
+                const dateStr = `${currentYear}-${fMonth}-${fDay}`;
+
+                // Marcar con punto si tiene reservas
+                const tieneCita = citas.some(c => c.fecha === dateStr);
+                if (tieneCita) {
+                    cell.classList.add('has-bookings');
+                }
+
+                // Marcar si está seleccionado
+                if (dateStr === selectedDateStr) {
+                    cell.classList.add('selected');
+                }
+
+                cell.addEventListener('click', () => {
+                    document.querySelectorAll('.grid-cell').forEach(el => el.classList.remove('selected'));
+                    cell.classList.add('selected');
+                    selectedDateStr = dateStr;
+                    mostrarDetallesDia(dateStr);
+                    document.getElementById('fecha').value = dateStr;
+                });
+
+                grid.appendChild(cell);
+            }
+        }
+
+        // Mostrar lista detallada de reservas abajo del calendario
+        function mostrarDetallesDia(dateStr) {
+            const title = document.getElementById('detailsTitle');
+            const content = document.getElementById('detailsContent');
+            const [anio, mes, dia] = dateStr.split('-');
+            title.innerText = `Reservas para el día ${dia}/${mes}/${anio}`;
+
+            const filtradas = citas.filter(c => c.fecha === dateStr)
+                                   .sort((a,b) => a.hora.localeCompare(b.hora));
+
+            if (filtradas.length === 0) {
+                content.innerHTML = "No hay personas registradas para este día. ¡Horas 100% disponibles!";
+                return;
+            }
+
+            content.innerHTML = '';
+            filtradas.forEach(cita => {
+                const item = document.createElement('div');
+                item.className = 'booking-item';
+                item.innerHTML = `
+                    <div class="booking-info">
+                        <strong>⏰ ${cita.hora} hrs — ${cita.nombre}</strong>
+                        <small>📞 Tel: ${cita.telefono} | 💇 Servicio: ${cita.servicio}</small>
+                    </div>
+                    <button class="delete-btn" onclick="eliminarCita('${cita.id}')">Cancelar</button>
+                `;
+                content.appendChild(item);
+            });
+        }
+
+        // Lógica de cálculo financiero automático del Dashboard
+        function calcularIngresosDashboard() {
+            let totalHoy = 0;
+            let totalMes = 0;
+            let totalHistorico = 0;
+
+            const hoyStr = new Date().toISOString().split('T')[0];
+            const mesActualStr = String(new Date().getMonth() + 1).padStart(2, '0');
+            const anioActualStr = String(new Date().getFullYear());
+
+            // Cambiar el label del mes actual dinámicamente
+            document.getElementById('nombreMesAnio').innerText = `Ingresos ${mesesNames[new Date().getMonth()]}`;
+
+            citas.forEach(cita => {
+                let valor = 0;
+                if (cita.servicio.includes("Barba") || cita.servicio.includes("10.000")) {
+                    valor = 10000;
+                } else {
+                    valor = 8000;
+                }
+
+                totalHistorico += valor;
+
+                if (cita.fecha === hoyStr) {
+                    totalHoy += valor;
+                }
+
+                const [cAnio, cMes] = cita.fecha.split('-');
+                if (cMes === mesActualStr && cAnio === anioActualStr) {
+                    totalMes += valor;
+                }
+            });
+
+            // Pintar los valores formateados en moneda CLP
+            document.getElementById('ingresosDia').innerText = `$${totalHoy.toLocaleString('es-CL')}`;
+            document.getElementById('ingresosMes').innerText = `$${totalMes.toLocaleString('es-CL')}`;
+            document.getElementById('totales').innerText = `$${totalHistorico.toLocaleString('es-CL')}`;
+        }
+
+        // Enviar nueva reserva a la nube
+        document.getElementById('formReserva').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nombre = document.getElementById('nombre').value;
+            const telefono = document.getElementById('telefono').value;
+            const servicio = document.getElementById('servicio').value;
+            const fecha = document.getElementById('fecha').value;
+            const hora = document.getElementById('hora').value;
+
+            // Evitar duplicados de hora el mismo día
+            const ocupado = citas.some(c => c.fecha === fecha && c.hora === hora);
+            if (ocupado) {
+                alert("Lo sentimos, este horario ya está reservado. Por favor elige otra hora.");
+                return;
+            }
+
+            // Insertar en Supabase
+            const { error } = await supabase
+                .from('reservas')
+                .insert([{ nombre, telefono, servicio, fecha, hora }]);
+
+            if (error) {
+                alert("Error al guardar en la nube: " + error.message);
+                return;
+            }
+
+            alert("¡Cita agendada con éxito! Ya se sincronizó en el sistema.");
+            document.getElementById('formReserva').reset();
+            await cargarCitasDesdeSupabase();
+        });
+
+        // Cancelar cita directamente desde la lista inferior
+        window.eliminarCita = async function(id) {
+            if (confirm("¿Estás seguro de que deseas eliminar esta reserva del sistema?")) {
+                const { error } = await supabase
+                    .from('reservas')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) {
+                    alert("No se pudo eliminar la cita: " + error.message);
+                    return;
+                }
+
+                alert("Reserva cancelada correctamente.");
+                await cargarCitasDesdeSupabase();
+            }
+        }
+    </script>
 </body>
 </html>
