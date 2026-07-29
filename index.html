@@ -3,47 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Peluquería Hombre - Sistema de Reservas en Línea</title>
-    <!-- Cargamos la librería oficial de Supabase -->
+    <title>Peluquería Hombre - Sistema de Reservas</title>
+    <!-- Librería oficial de Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* Estilos generales con fondo oscuro y textura elegante de barbería */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-image: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('https://images.unsplash.com/photo-1503951914875-452162b0f3f1?q=80&w=1920&auto=format&fit=crop');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            background-repeat: no-repeat;
-            color: #f5f5f5; 
+        * {
+            box-sizing: border-box;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #0d0d0d;
+            background-image: radial-gradient(circle at center, #1a1a1a 0%, #080808 100%);
+            color: #f5f5f5;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
+            align-items: center;
+            padding: 20px 10px;
         }
 
         .main-wrapper {
             display: flex;
-            align-items: flex-start;
-            gap: 25px; 
-            margin-top: 20px;
-            margin-bottom: 40px;
-            max-width: 100%;
+            align-items: stretch;
+            justify-content: center;
+            gap: 20px;
+            width: 100%;
+            max-width: 850px;
+            margin: 0 auto;
         }
 
-        /* Postes de barbero animados con rotación continua */
+        /* Postes de barbero 100% Vectoriales y Adaptables */
         .barber-pole-container {
-            width: 65px;
-            height: 450px;
-            border-radius: 35px;
+            width: 50px;
+            min-height: 500px;
+            border-radius: 25px;
             overflow: hidden;
-            background-color: #f0f0f0;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+            background-color: #fff;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8), inset 0 0 10px rgba(0,0,0,0.5);
             position: relative;
-            border: 2px solid #444;
+            border: 3px solid #333;
             flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .barber-pole-container::before {
@@ -52,200 +57,163 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 200%; 
-            background-image: linear-gradient(
+            height: 200%;
+            background: repeating-linear-gradient(
                 45deg,
-                #ffffff 25%,
-                #d32f2f 25%,
-                #d32f2f 50%,
-                #ffffff 50%,
-                #ffffff 75%,
-                #1976d2 75%,
-                #1976d2
+                #d32f2f,
+                #d32f2f 20px,
+                #ffffff 20px,
+                #ffffff 40px,
+                #1976d2 40px,
+                #1976d2 60px,
+                #ffffff 60px,
+                #ffffff 80px
             );
-            background-size: 65px 65px; 
-            animation: barberPoleSpin 2.5s linear infinite;
+            animation: barberPoleSpin 4s linear infinite;
         }
 
         @keyframes barberPoleSpin {
             0% { transform: translateY(0); }
-            100% { transform: translateY(-65px); }
+            100% { transform: translateY(-80px); }
         }
 
         .barber-pole-cap {
-            position: absolute;
+            height: 20px;
             width: 100%;
-            height: 25px;
-            background: linear-gradient(to bottom, #e0e0e0, #999);
-            border-radius: 35px 35px 0 0;
+            background: linear-gradient(to bottom, #eeeeee, #888888, #333333);
+            border-radius: 20px 20px 0 0;
             z-index: 2;
         }
 
         .barber-pole-cap-bottom {
-            position: absolute;
-            bottom: 0;
+            height: 20px;
             width: 100%;
-            height: 25px;
-            background: linear-gradient(to top, #e0e0e0, #999);
-            border-radius: 0 0 35px 35px;
+            background: linear-gradient(to top, #eeeeee, #888888, #333333);
+            border-radius: 0 0 20px 20px;
             z-index: 2;
         }
 
-        /* Panel central translúcido difuminado */
+        /* Panel Central Elegante */
         .content-container {
-            width: 580px;
-            background-color: rgba(24, 24, 24, 0.88); 
-            backdrop-filter: blur(12px); 
-            -webkit-backdrop-filter: blur(12px);
-            padding: 35px;
+            flex: 1;
+            max-width: 550px;
+            background: rgba(22, 22, 22, 0.95);
+            padding: 30px;
             border-radius: 16px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.08);
             position: relative;
         }
 
-        /* Botón de acceso secreto Admin en la esquina */
         .admin-trigger {
             position: absolute;
-            top: 15px;
+            top: 20px;
             right: 20px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #888;
-            padding: 4px 10px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #bbb;
+            padding: 6px 12px;
             border-radius: 20px;
-            font-size: 11px;
+            font-size: 12px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
         }
 
         .admin-trigger:hover {
             color: #fff;
-            background: rgba(211, 47, 47, 0.3);
+            background: rgba(211, 47, 47, 0.4);
             border-color: #d32f2f;
         }
 
         .admin-trigger.active {
             color: #81c784;
             border-color: #81c784;
-            background: rgba(129, 199, 132, 0.1);
+            background: rgba(129, 199, 132, 0.15);
         }
 
         h1 {
             text-align: center;
-            font-size: 32px;
-            margin: 0 0 5px 0;
+            font-size: 28px;
+            margin-bottom: 5px;
             color: #ffffff;
-            letter-spacing: 1px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+            letter-spacing: 0.5px;
         }
 
         .subtitle {
             text-align: center;
-            font-size: 15px;
-            color: #b3b3b3;
-            margin-bottom: 30px;
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 25px;
         }
 
-        /* Estilos del Formulario de Reserva */
         .form-group {
-            margin-bottom: 18px;
+            margin-bottom: 16px;
         }
 
         label {
             display: block;
             margin-bottom: 6px;
-            color: #e0e0e0;
+            color: #ccc;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         input[type="text"], input[type="date"], select {
             width: 100%;
-            padding: 12px 15px;
-            background-color: rgba(38, 38, 38, 0.85);
-            border: 1px solid #444;
-            border-radius: 6px;
+            padding: 12px;
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
             color: #ffffff;
-            box-sizing: border-box; 
-            font-size: 15px;
-            transition: all 0.3s ease;
-        }
-
-        input[type="text"]::placeholder {
-            color: #777;
+            font-size: 14px;
+            transition: all 0.2s;
         }
 
         input:focus, select:focus {
             border-color: #d32f2f;
-            background-color: rgba(45, 45, 45, 0.95);
             outline: none;
-            box-shadow: 0 0 8px rgba(211, 47, 47, 0.4);
+            box-shadow: 0 0 6px rgba(211, 47, 47, 0.4);
         }
 
         .reserve-button {
-            display: block;
             width: 100%;
             padding: 14px;
-            background: linear-gradient(135deg, #d32f2f, #b71c1c);
+            background: linear-gradient(135deg, #d32f2f, #9a0007);
             color: #ffffff;
             border: none;
-            border-radius: 6px;
-            font-size: 17px;
+            border-radius: 8px;
+            font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            margin-top: 25px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 15px rgba(211, 47, 47, 0.3);
-            transition: all 0.3s ease;
+            margin-top: 15px;
+            margin-bottom: 25px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3);
         }
 
         .reserve-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(211, 47, 47, 0.5);
+            transform: translateY(-1px);
             background: linear-gradient(135deg, #e53935, #c62828);
         }
 
-        /* Panel de Control de Ingresos (Oculto para el cliente) */
+        /* Dashboard Admin */
         .dashboard-stats {
-            background: linear-gradient(135deg, rgba(32, 32, 32, 0.9), rgba(40, 40, 40, 0.9));
-            border: 1px solid rgba(255,255,255,0.06);
+            background: #141414;
+            border: 1px solid #2a2a2a;
             border-radius: 8px;
-            padding: 15px 20px;
-            margin-bottom: 25px;
-            display: none; /* Se activa solo en Modo Admin */
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .stat-box {
-            text-align: center;
-            flex: 1;
-        }
-
-        .stat-box:not(:last-child) {
-            border-right: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .stat-label {
-            font-size: 11px;
-            text-transform: uppercase;
-            color: #aaa;
-            letter-spacing: 0.5px;
-            margin-bottom: 4px;
-        }
-
-        .stat-value {
-            font-size: 18px;
-            font-weight: bold;
-            color: #81c784;
-        }
-
-        /* Calendario Visual e Interactivo */
-        .calendar-section {
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            padding-top: 25px;
+            padding: 15px;
             margin-bottom: 20px;
+            display: none;
+            justify-content: space-around;
+        }
+
+        .stat-box { text-align: center; }
+        .stat-label { font-size: 11px; color: #888; text-transform: uppercase; margin-bottom: 4px; }
+        .stat-value { font-size: 16px; font-weight: bold; color: #81c784; }
+
+        /* Calendario */
+        .calendar-section {
+            border-top: 1px solid #2a2a2a;
+            padding-top: 20px;
         }
 
         .calendar-header {
@@ -256,174 +224,134 @@
         }
 
         .nav-button {
-            background-color: rgba(60, 60, 60, 0.8);
-            color: #ffffff;
-            border: 1px solid #555;
+            background-color: #2a2a2a;
+            color: #fff;
+            border: 1px solid #333;
             padding: 8px 14px;
             border-radius: 6px;
             cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s;
+            font-size: 13px;
         }
 
-        .nav-button:hover {
-            background-color: #505050;
-            border-color: #777;
-        }
+        .nav-button:hover { background-color: #383838; }
 
         .calendar-title {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
-            color: #ffffff;
-            letter-spacing: 0.5px;
+            color: #fff;
         }
 
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 5px;
+            gap: 6px;
         }
 
         .grid-header {
-            background-color: rgba(28, 28, 28, 0.9);
-            padding: 10px 0;
             text-align: center;
             font-weight: bold;
-            font-size: 13px;
-            color: #a0a0a0;
-            border-radius: 4px;
+            font-size: 12px;
+            color: #777;
+            padding-bottom: 5px;
         }
 
         .grid-cell {
-            padding: 14px 0;
+            padding: 10px 0;
             text-align: center;
-            font-size: 14px;
-            background-color: rgba(45, 45, 45, 0.6);
-            border: 1px solid rgba(255,255,255,0.02);
+            font-size: 13px;
+            background-color: #1a1a1a;
+            border: 1px solid #282828;
             border-radius: 6px;
             cursor: pointer;
             position: relative;
-            transition: all 0.2s ease;
         }
 
-        .grid-cell:hover {
-            background-color: rgba(70, 70, 70, 0.8);
-            transform: scale(1.03);
-        }
+        .grid-cell:hover { background-color: #2a2a2a; }
 
         .grid-cell.other-month {
-            color: #444;
+            opacity: 0.2;
             cursor: default;
-            background-color: transparent;
-            border: none;
-        }
-        
-        .grid-cell.other-month:hover {
-            background-color: transparent;
-            transform: none;
         }
 
         .grid-cell.selected {
-            background: linear-gradient(135deg, #d32f2f, #b71c1c) !important;
+            background: #d32f2f !important;
             color: #fff;
             font-weight: bold;
-            box-shadow: 0 0 10px rgba(211, 47, 47, 0.5);
         }
 
-        /* Círculo indicador de reservas del día */
         .has-bookings::after {
             content: '';
             position: absolute;
-            bottom: 4px;
+            bottom: 3px;
             left: 50%;
             transform: translateX(-50%);
-            width: 6px;
-            height: 6px;
+            width: 5px;
+            height: 5px;
             background-color: #ff5252;
             border-radius: 50%;
-            box-shadow: 0 0 4px #ff5252;
         }
 
-        /* Lista de citas agendadas */
         .day-details {
-            background-color: rgba(33, 33, 33, 0.9);
-            padding: 20px;
+            background-color: #141414;
+            padding: 15px;
             border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid #252525;
             margin-top: 15px;
         }
 
         .day-details h4 {
-            margin: 0 0 12px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 8px;
-            font-size: 15px;
-            color: #e0e0e0;
-            letter-spacing: 0.3px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #ddd;
+            border-bottom: 1px solid #222;
+            padding-bottom: 6px;
         }
 
-        #detailsContent {
-            font-size: 14px;
-            color: #b0b0b0;
-            line-height: 1.5;
-        }
+        #detailsContent { font-size: 13px; color: #999; }
 
         .booking-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(20, 20, 20, 0.6);
-            padding: 12px 15px;
+            background: #1e1e1e;
+            padding: 10px;
             border-radius: 6px;
-            margin-bottom: 8px;
-            border-left: 4px solid #d32f2f;
+            margin-bottom: 6px;
+            border-left: 3px solid #d32f2f;
         }
 
-        .booking-info strong {
-            color: #fff;
-            font-size: 15px;
-        }
-
-        .booking-info small {
-            color: #aaa;
-            display: block;
-            margin-top: 2px;
-        }
+        .booking-info strong { color: #fff; display: block; }
+        .booking-info small { color: #888; }
 
         .delete-btn {
             background-color: #b71c1c;
             color: white;
             border: none;
-            padding: 6px 12px;
+            padding: 5px 10px;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 12px;
-            font-weight: 600;
-            transition: background 0.2s;
+            font-size: 11px;
         }
 
-        .delete-btn:hover {
-            background-color: #e53935;
+        @media (max-width: 600px) {
+            .barber-pole-container { display: none; }
+            .content-container { padding: 20px; }
         }
     </style>
 </head>
 <body>
     <div class="main-wrapper">
-        <!-- Poste Izquierdo -->
         <div class="barber-pole-container">
             <div class="barber-pole-cap"></div>
             <div class="barber-pole-cap-bottom"></div>
         </div>
 
-        <!-- Contenedor Principal -->
         <div class="content-container">
-            <!-- Botón Discreto para Administrador -->
             <button id="adminBtn" class="admin-trigger" onclick="toggleAdminMode()">🔒 Admin</button>
 
             <h1>Peluquería Hombre</h1>
             <p class="subtitle">Reserva tu cita en pocos segundos</p>
 
-            <!-- Dashboard de ingresos (Solo visible si es Admin) -->
             <div class="dashboard-stats" id="adminDashboard">
                 <div class="stat-box">
                     <div class="stat-label">Ingresos Hoy</div>
@@ -439,7 +367,6 @@
                 </div>
             </div>
 
-            <!-- Formulario de Entrada -->
             <form id="formReserva">
                 <div class="form-group">
                     <label for="nombre">Nombre de Cliente</label>
@@ -460,7 +387,7 @@
                     </select>
                 </div>
 
-                <div class="form-group" style="display: flex; gap: 15px;">
+                <div class="form-group" style="display: flex; gap: 10px;">
                     <div style="flex: 1;">
                         <label for="fecha">Fecha</label>
                         <input type="date" id="fecha" required>
@@ -486,25 +413,22 @@
                 <button type="submit" class="reserve-button">Confirmar y Reservar Hora</button>
             </form>
 
-            <!-- Sección de Calendario Dinámico -->
             <div class="calendar-section">
                 <div class="calendar-header">
                     <button class="nav-button" id="prevMonth">◀ Ant</button>
-                    <div class="calendar-title" id="calendarTitle">Mes Año</div>
+                    <div class="calendar-title" id="calendarTitle">Cargando...</div>
                     <button class="nav-button" id="nextMonth">Sig ▶</button>
                 </div>
 
                 <div class="calendar-grid" id="calendarGrid"></div>
             </div>
 
-            <!-- Bloque de Detalle de Citas del Día -->
             <div class="day-details">
                 <h4 id="detailsTitle">Selecciona un día en el calendario</h4>
-                <div id="detailsContent">Haz clic sobre cualquier fecha para consultar la disponibilidad de horarios.</div>
+                <div id="detailsContent">Haz clic sobre cualquier fecha para ver disponibilidades.</div>
             </div>
         </div>
 
-        <!-- Poste Derecho -->
         <div class="barber-pole-container">
             <div class="barber-pole-cap"></div>
             <div class="barber-pole-cap-bottom"></div>
@@ -512,18 +436,12 @@
     </div>
 
     <script>
-        // =========================================================
-        // CONEXIÓN CON TU PROYECTO DE SUPABASE
-        // =========================================================
         const SUPABASE_URL = "https://mfvxrdgkasahmfstcrhd.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_8IGgK5Uisvx-t91HWf1rIqw_Hp8h21zN3U3g3M3c5W6k7X"; 
-
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Clave PIN de administrador (Puedes cambiarla aquí si deseas)
-        const ADMIN_PIN = "Nico2530";
+        const ADMIN_PIN = "1234";
         let isAdminMode = false;
-
         let citas = [];
         let currentDate = new Date();
         let currentMonth = currentDate.getMonth();
@@ -534,11 +452,9 @@
         const diasSemana = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 
         window.addEventListener('DOMContentLoaded', async () => {
-            // Fecha mínima: el día de hoy
             const hoyStr = new Date().toISOString().split('T')[0];
             document.getElementById('fecha').min = hoyStr;
 
-            // Sincronizar calendario al cambiar la fecha en el formulario
             document.getElementById('fecha').addEventListener('change', (e) => {
                 const formDate = e.target.value;
                 if (formDate) {
@@ -551,25 +467,20 @@
                 }
             });
 
-            // Cargar citas iniciales
             await cargarCitasDesdeSupabase();
         });
 
-        // Activar o Desactivar el Modo Administrador con clave
         window.toggleAdminMode = function() {
             const btn = document.getElementById('adminBtn');
             const dashboard = document.getElementById('adminDashboard');
 
             if (isAdminMode) {
-                // Cerrar modo Admin
                 isAdminMode = false;
                 btn.innerText = "🔒 Admin";
                 btn.classList.remove('active');
                 dashboard.style.display = "none";
                 if (selectedDateStr) mostrarDetallesDia(selectedDateStr);
-                alert("Has salido del modo administración.");
             } else {
-                // Pedir PIN secreto
                 const pin = prompt("Ingresa el PIN de administración:");
                 if (pin === ADMIN_PIN) {
                     isAdminMode = true;
@@ -577,42 +488,21 @@
                     btn.classList.add('active');
                     dashboard.style.display = "flex";
                     if (selectedDateStr) mostrarDetallesDia(selectedDateStr);
-                    alert("¡Bienvenido! Modo Administrador activado.");
                 } else if (pin !== null) {
-                    alert("PIN incorrecto. Acceso denegado.");
+                    alert("PIN incorrecto.");
                 }
             }
         };
 
-        // Traer todas las citas desde Supabase
         async function cargarCitasDesdeSupabase() {
-            const { data, error } = await supabase
-                .from('reservas')
-                .select('*');
-            
-            if (error) {
-                console.error("Error cargando base de datos:", error);
-                return;
-            }
-
+            const { data, error } = await supabase.from('reservas').select('*');
+            if (error) { console.error("Error DB:", error); return; }
             citas = data || [];
             renderCalendar();
             calcularIngresosDashboard();
-
-            if (selectedDateStr) {
-                mostrarDetallesDia(selectedDateStr);
-            }
+            if (selectedDateStr) mostrarDetallesDia(selectedDateStr);
         }
 
-        // Suscripción Realtime
-        supabase
-            .channel('schema-db-changes')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'reservas' }, () => {
-                cargarCitasDesdeSupabase();
-            })
-            .subscribe();
-
-        // Control de los meses del calendario
         document.getElementById('prevMonth').addEventListener('click', () => {
             currentMonth--;
             if (currentMonth < 0) { currentMonth = 11; currentYear--; }
@@ -625,7 +515,6 @@
             renderCalendar();
         });
 
-        // Dibujar el calendario en pantalla
         function renderCalendar() {
             const grid = document.getElementById('calendarGrid');
             const title = document.getElementById('calendarTitle');
@@ -657,8 +546,7 @@
                 const fDay = String(day).padStart(2, '0');
                 const dateStr = `${currentYear}-${fMonth}-${fDay}`;
 
-                const tieneCita = citas.some(c => c.fecha === dateStr);
-                if (tieneCita) {
+                if (citas.some(c => c.fecha === dateStr)) {
                     cell.classList.add('has-bookings');
                 }
 
@@ -678,42 +566,38 @@
             }
         }
 
-        // Mostrar detalles de la reserva respetando el permiso de Admin
         function mostrarDetallesDia(dateStr) {
             const title = document.getElementById('detailsTitle');
             const content = document.getElementById('detailsContent');
             const [anio, mes, dia] = dateStr.split('-');
-            title.innerText = `Horarios para el día ${dia}/${mes}/${anio}`;
+            title.innerText = `Horarios: ${dia}/${mes}/${anio}`;
 
             const filtradas = citas.filter(c => c.fecha === dateStr)
                                    .sort((a,b) => a.hora.localeCompare(b.hora));
 
             if (filtradas.length === 0) {
-                content.innerHTML = "No hay reservas registradas para este día. ¡Todos los horarios están disponibles!";
+                content.innerHTML = "No hay reservas registradas para este día.";
                 return;
             }
 
             content.innerHTML = '';
-
             filtradas.forEach(cita => {
                 const item = document.createElement('div');
                 item.className = 'booking-item';
 
                 if (isAdminMode) {
-                    // Vista del Administrador: muestra datos personales y botón para cancelar
                     item.innerHTML = `
                         <div class="booking-info">
                             <strong>⏰ ${cita.hora} hrs — ${cita.nombre}</strong>
-                            <small>📞 Tel: ${cita.telefono} | 💇 Servicio: ${cita.servicio}</small>
+                            <small>📞 ${cita.telefono} | 💇 ${cita.servicio}</small>
                         </div>
                         <button class="delete-btn" onclick="eliminarCita('${cita.id}')">Cancelar</button>
                     `;
                 } else {
-                    // Vista del Cliente: solo muestra que el horario está reservado (protege la privacidad)
                     item.innerHTML = `
                         <div class="booking-info">
                             <strong>⏰ ${cita.hora} hrs — Horario Reservado</strong>
-                            <small>Este bloque ya no se encuentra disponible</small>
+                            <small>No disponible</small>
                         </div>
                     `;
                 }
@@ -721,36 +605,20 @@
             });
         }
 
-        // Cálculo de los ingresos del negocio
         function calcularIngresosDashboard() {
-            let totalHoy = 0;
-            let totalMes = 0;
-            let totalHistorico = 0;
-
+            let totalHoy = 0, totalMes = 0, totalHistorico = 0;
             const hoyStr = new Date().toISOString().split('T')[0];
             const mesActualStr = String(new Date().getMonth() + 1).padStart(2, '0');
             const anioActualStr = String(new Date().getFullYear());
 
-            document.getElementById('nombreMesAnio').innerText = `Ingresos ${mesesNames[new Date().getMonth()]}`;
+            document.getElementById('nombreMesAnio').innerText = `Mes (${mesesNames[new Date().getMonth()]})`;
 
             citas.forEach(cita => {
-                let valor = 0;
-                if (cita.servicio.includes("Barba") || cita.servicio.includes("10.000")) {
-                    valor = 10000;
-                } else {
-                    valor = 8000;
-                }
-
+                const valor = (cita.servicio.includes("Barba") || cita.servicio.includes("10.000")) ? 10000 : 8000;
                 totalHistorico += valor;
-
-                if (cita.fecha === hoyStr) {
-                    totalHoy += valor;
-                }
-
+                if (cita.fecha === hoyStr) totalHoy += valor;
                 const [cAnio, cMes] = cita.fecha.split('-');
-                if (cMes === mesActualStr && cAnio === anioActualStr) {
-                    totalMes += valor;
-                }
+                if (cMes === mesActualStr && cAnio === anioActualStr) totalMes += valor;
             });
 
             document.getElementById('ingresosDia').innerText = `$${totalHoy.toLocaleString('es-CL')}`;
@@ -758,7 +626,6 @@
             document.getElementById('totales').innerText = `$${totalHistorico.toLocaleString('es-CL')}`;
         }
 
-        // Guardar nueva reserva
         document.getElementById('formReserva').addEventListener('submit', async (e) => {
             e.preventDefault();
             const nombre = document.getElementById('nombre').value;
@@ -767,44 +634,26 @@
             const fecha = document.getElementById('fecha').value;
             const hora = document.getElementById('hora').value;
 
-            // Bloquear reservas duplicadas en la misma fecha y hora
-            const ocupado = citas.some(c => c.fecha === fecha && c.hora === hora);
-            if (ocupado) {
-                alert("Lo sentimos, este horario ya está reservado. Por favor selecciona otra hora.");
+            if (citas.some(c => c.fecha === fecha && c.hora === hora)) {
+                alert("Este horario ya está ocupado.");
                 return;
             }
 
-            const { error } = await supabase
-                .from('reservas')
-                .insert([{ nombre, telefono, servicio, fecha, hora }]);
+            const { error } = await supabase.from('reservas').insert([{ nombre, telefono, servicio, fecha, hora }]);
+            if (error) { alert("Error: " + error.message); return; }
 
-            if (error) {
-                alert("Error al guardar en la nube: " + error.message);
-                return;
-            }
-
-            alert("¡Cita agendada con éxito! Ya ha sido confirmada en el sistema.");
+            alert("¡Cita agendada con éxito!");
             document.getElementById('formReserva').reset();
             await cargarCitasDesdeSupabase();
         });
 
-        // Eliminar/Cancelar cita (disponible únicamente desde el panel de Admin)
         window.eliminarCita = async function(id) {
-            if (confirm("¿Estás seguro de que deseas cancelar esta reserva del sistema?")) {
-                const { error } = await supabase
-                    .from('reservas')
-                    .delete()
-                    .eq('id', id);
-
-                if (error) {
-                    alert("No se pudo eliminar la cita: " + error.message);
-                    return;
-                }
-
-                alert("Reserva cancelada correctamente.");
+            if (confirm("¿Cancelar esta reserva?")) {
+                const { error } = await supabase.from('reservas').delete().eq('id', id);
+                if (error) { alert("Error: " + error.message); return; }
                 await cargarCitasDesdeSupabase();
             }
         }
     </script>
 </body>
-</html> 
+</html>
