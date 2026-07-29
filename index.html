@@ -3,165 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Peluquería Hombre - Reserva tu Hora</title>
-    <!-- Supabase JS -->
+    <title>Peluquería Hombre - Sistema de Reservas en Línea</title>
+    <!-- Cargamos la librería oficial de Supabase para conectar la base de datos -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Fuentes Elegantes Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
+        /* Estilos generales con fondo oscuro y textura elegante de barbería */
         body {
-            font-family: 'Poppins', sans-serif;
-            background: #0a0a0a url('https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat fixed;
-            color: #f5f5f5;
-            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('https://images.unsplash.com/photo-1503951914875-452162b0f3f1?q=80&w=1920&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            color: #f5f5f5; 
+            margin: 0;
+            padding: 20px;
             display: flex;
             justify-content: center;
-            align-items: center;
-            padding: 20px 10px;
-            position: relative;
-        }
-
-        body::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.85);
-            z-index: 0;
+            align-items: flex-start;
+            min-height: 100vh;
         }
 
         .main-wrapper {
-            position: relative;
-            z-index: 1;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            width: 100%;
-            max-width: 950px;
+            align-items: flex-start;
+            gap: 25px; 
+            margin-top: 20px;
+            margin-bottom: 40px;
+            max-width: 100%;
         }
 
-        /* Postes de Barbero Clásicos */
-        .barber-pole-wrapper {
-            width: 55px;
-            height: 520px;
+        /* Postes de barbero animados con rotación continua */
+        .barber-pole-container {
+            width: 65px;
+            height: 450px;
+            border-radius: 35px;
+            overflow: hidden;
+            background-color: #f0f0f0;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
             position: relative;
+            border: 2px solid #444;
             flex-shrink: 0;
         }
 
-        .barber-pole-cap-top, .barber-pole-cap-bottom {
-            width: 65px;
-            height: 35px;
-            background: linear-gradient(135deg, #e6c875, #ffd700, #997a15);
+        .barber-pole-container::before {
+            content: '';
             position: absolute;
-            left: -5px;
-            border-radius: 50% 50% 10% 10%;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.6), inset 0 2px 5px rgba(255,255,255,0.6);
-            z-index: 3;
-        }
-
-        .barber-pole-cap-top { top: -15px; }
-        .barber-pole-cap-bottom { bottom: -15px; border-radius: 10% 10% 50% 50%; }
-
-        .barber-pole-glass {
+            top: 0;
+            left: 0;
             width: 100%;
-            height: 100%;
-            border-radius: 30px;
-            overflow: hidden;
-            border: 2px solid #d4af37;
-            box-shadow: 0 0 25px rgba(212, 175, 55, 0.3), inset 0 0 15px rgba(0,0,0,0.8);
-            position: relative;
-            background: #fff;
-        }
-
-        .barber-pole-stripes {
-            width: 100%;
-            height: 200%;
-            background: repeating-linear-gradient(
-                -45deg,
-                #cc1111,
-                #cc1111 25px,
-                #ffffff 25px,
-                #ffffff 50px,
-                #1144cc 50px,
-                #1144cc 75px,
-                #ffffff 75px,
-                #ffffff 100px
+            height: 200%; 
+            background-image: linear-gradient(
+                45deg,
+                #ffffff 25%,
+                #d32f2f 25%,
+                #d32f2f 50%,
+                #ffffff 50%,
+                #ffffff 75%,
+                #1976d2 75%,
+                #1976d2
             );
-            animation: spinPole 5s linear infinite;
+            background-size: 65px 65px; 
+            animation: barberPoleSpin 2.5s linear infinite;
         }
 
-        @keyframes spinPole {
+        @keyframes barberPoleSpin {
             0% { transform: translateY(0); }
-            100% { transform: translateY(-100px); }
+            100% { transform: translateY(-65px); }
         }
 
-        /* Panel Central Prémia */
-        .content-container {
-            flex: 1;
-            max-width: 540px;
-            background: rgba(18, 18, 18, 0.92);
-            backdrop-filter: blur(10px);
-            padding: 35px 30px;
-            border-radius: 20px;
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 30px rgba(212, 175, 55, 0.1);
-            position: relative;
-        }
-
-        .admin-trigger {
+        .barber-pole-cap {
             position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(212, 175, 55, 0.1);
-            border: 1px solid #d4af37;
-            color: #d4af37;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
-            cursor: pointer;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            transition: all 0.3s ease;
+            width: 100%;
+            height: 25px;
+            background: linear-gradient(to bottom, #e0e0e0, #999);
+            border-radius: 35px 35px 0 0;
+            z-index: 2;
         }
 
-        .admin-trigger:hover {
-            background: #d4af37;
-            color: #000;
-            box-shadow: 0 0 12px rgba(212, 175, 55, 0.6);
+        .barber-pole-cap-bottom {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 25px;
+            background: linear-gradient(to top, #e0e0e0, #999);
+            border-radius: 0 0 35px 35px;
+            z-index: 2;
         }
 
-        .admin-trigger.active {
-            background: #81c784;
-            color: #000;
-            border-color: #81c784;
+        /* Panel central translúcido difuminado */
+        .content-container {
+            width: 580px;
+            background-color: rgba(24, 24, 24, 0.88); 
+            backdrop-filter: blur(12px); 
+            -webkit-backdrop-filter: blur(12px);
+            padding: 35px;
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         h1 {
-            font-family: 'Cinzel', serif;
             text-align: center;
-            font-size: 30px;
-            color: #d4af37;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            margin-bottom: 2px;
-            text-shadow: 0 2px 10px rgba(212, 175, 55, 0.3);
+            font-size: 32px;
+            margin: 0 0 5px 0;
+            color: #ffffff;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
         }
 
         .subtitle {
             text-align: center;
-            font-size: 13px;
-            color: #aaa;
-            margin-bottom: 25px;
-            letter-spacing: 1px;
+            font-size: 15px;
+            color: #b3b3b3;
+            margin-bottom: 30px;
         }
 
+        /* Estilos del Formulario de Reserva */
         .form-group {
             margin-bottom: 18px;
         }
@@ -169,74 +127,97 @@
         label {
             display: block;
             margin-bottom: 6px;
-            color: #d4af37;
-            font-size: 12px;
+            color: #e0e0e0;
             font-weight: 600;
-            letter-spacing: 1px;
-            text-transform: uppercase;
+            font-size: 14px;
         }
 
         input[type="text"], input[type="date"], select {
             width: 100%;
             padding: 12px 15px;
-            background-color: rgba(30, 30, 30, 0.8);
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            border-radius: 8px;
+            background-color: rgba(38, 38, 38, 0.85);
+            border: 1px solid #444;
+            border-radius: 6px;
             color: #ffffff;
-            font-size: 14px;
-            transition: all 0.3s;
+            box-sizing: border-box; 
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]::placeholder {
+            color: #777;
         }
 
         input:focus, select:focus {
-            border-color: #d4af37;
+            border-color: #d32f2f;
+            background-color: rgba(45, 45, 45, 0.95);
             outline: none;
-            box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
-            background-color: rgba(40, 40, 40, 0.9);
+            box-shadow: 0 0 8px rgba(211, 47, 47, 0.4);
         }
 
         .reserve-button {
+            display: block;
             width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #d4af37, #aa820a);
-            color: #000;
+            padding: 14px;
+            background: linear-gradient(135deg, #d32f2f, #b71c1c);
+            color: #ffffff;
             border: none;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
+            border-radius: 6px;
+            font-size: 17px;
+            font-weight: bold;
             cursor: pointer;
-            margin-top: 10px;
-            margin-bottom: 25px;
+            margin-top: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(211, 47, 47, 0.3);
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
         }
 
         .reserve-button:hover {
             transform: translateY(-2px);
-            background: linear-gradient(135deg, #ffe066, #d4af37);
-            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5);
+            box-shadow: 0 6px 20px rgba(211, 47, 47, 0.5);
+            background: linear-gradient(135deg, #e53935, #c62828);
         }
 
-        /* Dashboard Admin */
+        /* Panel de Control de Ingresos de la barbería */
         .dashboard-stats {
-            background: rgba(30, 30, 30, 0.9);
-            border: 1px solid #d4af37;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 20px;
-            display: none;
-            justify-content: space-around;
+            background: linear-gradient(135deg, rgba(32, 32, 32, 0.9), rgba(40, 40, 40, 0.9));
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .stat-box { text-align: center; }
-        .stat-label { font-size: 10px; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
-        .stat-value { font-size: 17px; font-weight: bold; color: #81c784; }
+        .stat-box {
+            text-align: center;
+            flex: 1;
+        }
 
-        /* Calendario */
+        .stat-box:not(:last-child) {
+            border-right: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .stat-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #aaa;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #81c784; /* Verde financiero */
+        }
+
+        /* Calendario Visual e Interactivo */
         .calendar-section {
-            border-top: 1px solid rgba(212, 175, 55, 0.2);
-            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 25px;
+            margin-bottom: 20px;
         }
 
         .calendar-header {
@@ -247,153 +228,172 @@
         }
 
         .nav-button {
-            background-color: rgba(255, 255, 255, 0.05);
-            color: #d4af37;
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            padding: 6px 14px;
+            background-color: rgba(60, 60, 60, 0.8);
+            color: #ffffff;
+            border: 1px solid #555;
+            padding: 8px 14px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 12px;
-            transition: all 0.3s;
+            font-weight: 600;
+            transition: all 0.2s;
         }
 
         .nav-button:hover {
-            background-color: #d4af37;
-            color: #000;
+            background-color: #505050;
+            border-color: #777;
         }
 
         .calendar-title {
-            font-family: 'Cinzel', serif;
-            font-size: 16px;
+            font-size: 18px;
             font-weight: bold;
-            color: #d4af37;
-            letter-spacing: 1px;
+            color: #ffffff;
+            letter-spacing: 0.5px;
         }
 
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 6px;
+            gap: 5px;
         }
 
         .grid-header {
+            background-color: rgba(28, 28, 28, 0.9);
+            padding: 10px 0;
             text-align: center;
             font-weight: bold;
-            font-size: 11px;
-            color: #888;
-            padding-bottom: 5px;
-            text-transform: uppercase;
+            font-size: 13px;
+            color: #a0a0a0;
+            border-radius: 4px;
         }
 
         .grid-cell {
-            padding: 10px 0;
+            padding: 14px 0;
             text-align: center;
-            font-size: 13px;
-            background-color: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            font-size: 14px;
+            background-color: rgba(45, 45, 45, 0.6);
+            border: 1px solid rgba(255,255,255,0.02);
             border-radius: 6px;
             cursor: pointer;
             position: relative;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
         }
 
         .grid-cell:hover {
-            border-color: #d4af37;
-            background-color: rgba(212, 175, 55, 0.1);
+            background-color: rgba(70, 70, 70, 0.8);
+            transform: scale(1.03);
         }
 
         .grid-cell.other-month {
-            opacity: 0.15;
+            color: #444;
             cursor: default;
+            background-color: transparent;
+            border: none;
+        }
+        
+        .grid-cell.other-month:hover {
+            background-color: transparent;
+            transform: none;
         }
 
         .grid-cell.selected {
-            background: #d4af37 !important;
-            color: #000 !important;
+            background: linear-gradient(135deg, #d32f2f, #b71c1c) !important;
+            color: #fff;
             font-weight: bold;
-            box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+            box-shadow: 0 0 10px rgba(211, 47, 47, 0.5);
         }
 
+        /* Círculo indicador de reservas del día */
         .has-bookings::after {
             content: '';
             position: absolute;
             bottom: 4px;
             left: 50%;
             transform: translateX(-50%);
-            width: 4px;
-            height: 4px;
-            background-color: #d4af37;
+            width: 6px;
+            height: 6px;
+            background-color: #ff5252;
             border-radius: 50%;
+            box-shadow: 0 0 4px #ff5252;
         }
 
+        /* Lista de clientes agendados en la parte inferior */
         .day-details {
-            background-color: rgba(255, 255, 255, 0.02);
-            padding: 15px;
+            background-color: rgba(33, 33, 33, 0.9);
+            padding: 20px;
             border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             margin-top: 15px;
         }
 
         .day-details h4 {
-            margin-bottom: 10px;
-            font-size: 13px;
-            color: #d4af37;
-            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-            padding-bottom: 6px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
+            margin: 0 0 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 8px;
+            font-size: 15px;
+            color: #e0e0e0;
+            letter-spacing: 0.3px;
         }
 
-        #detailsContent { font-size: 13px; color: #aaa; }
+        #detailsContent {
+            font-size: 14px;
+            color: #b0b0b0;
+            line-height: 1.5;
+        }
 
         .booking-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(30, 30, 30, 0.8);
-            padding: 10px 12px;
+            background: rgba(20, 20, 20, 0.6);
+            padding: 12px 15px;
             border-radius: 6px;
-            margin-bottom: 6px;
-            border-left: 3px solid #d4af37;
+            margin-bottom: 8px;
+            border-left: 4px solid #d32f2f;
         }
 
-        .booking-info strong { color: #fff; display: block; font-size: 13px; }
-        .booking-info small { color: #888; font-size: 11px; }
+        .booking-info strong {
+            color: #fff;
+            font-size: 15px;
+        }
+
+        .booking-info small {
+            color: #aaa;
+            display: block;
+            margin-top: 2px;
+        }
 
         .delete-btn {
-            background-color: #c62828;
+            background-color: #b71c1c;
             color: white;
             border: none;
-            padding: 5px 10px;
+            padding: 6px 12px;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 11px;
+            font-size: 12px;
+            font-weight: 600;
+            transition: background 0.2s;
         }
 
-        @media (max-width: 650px) {
-            .barber-pole-wrapper { display: none; }
-            .content-container { padding: 25px 20px; }
+        .delete-btn:hover {
+            background-color: #e53935;
         }
     </style>
 </head>
 <body>
     <div class="main-wrapper">
         <!-- Poste Izquierdo -->
-        <div class="barber-pole-wrapper">
-            <div class="barber-pole-cap-top"></div>
-            <div class="barber-pole-glass">
-                <div class="barber-pole-stripes"></div>
-            </div>
+        <div class="barber-pole-container">
+            <div class="barber-pole-cap"></div>
             <div class="barber-pole-cap-bottom"></div>
         </div>
 
+        <!-- Contenedor Principal -->
         <div class="content-container">
-            <button id="adminBtn" class="admin-trigger" onclick="toggleAdminMode()">🔒 Admin</button>
-
             <h1>Peluquería Hombre</h1>
             <p class="subtitle">Reserva tu cita en pocos segundos</p>
 
-            <div class="dashboard-stats" id="adminDashboard">
+            <!-- Dashboard de ingresos financieros automáticos -->
+            <div class="dashboard-stats">
                 <div class="stat-box">
                     <div class="stat-label">Ingresos Hoy</div>
                     <div class="stat-value" id="ingresosDia">$0</div>
@@ -408,6 +408,7 @@
                 </div>
             </div>
 
+            <!-- Formulario de Entrada -->
             <form id="formReserva">
                 <div class="form-group">
                     <label for="nombre">Nombre de Cliente</label>
@@ -428,7 +429,7 @@
                     </select>
                 </div>
 
-                <div class="form-group" style="display: flex; gap: 10px;">
+                <div class="form-group" style="display: flex; gap: 15px;">
                     <div style="flex: 1;">
                         <label for="fecha">Fecha</label>
                         <input type="date" id="fecha" required>
@@ -454,39 +455,41 @@
                 <button type="submit" class="reserve-button">Confirmar y Reservar Hora</button>
             </form>
 
+            <!-- Sección de Calendario Dinámico -->
             <div class="calendar-section">
                 <div class="calendar-header">
                     <button class="nav-button" id="prevMonth">◀ Ant</button>
-                    <div class="calendar-title" id="calendarTitle">Cargando...</div>
+                    <div class="calendar-title" id="calendarTitle">Mes Año</div>
                     <button class="nav-button" id="nextMonth">Sig ▶</button>
                 </div>
 
                 <div class="calendar-grid" id="calendarGrid"></div>
             </div>
 
+            <!-- Bloque de Detalle de Citas del Día (Visualización de Clientes Abajo) -->
             <div class="day-details">
                 <h4 id="detailsTitle">Selecciona un día en el calendario</h4>
-                <div id="detailsContent">Haz clic sobre cualquier fecha para ver disponibilidades.</div>
+                <div id="detailsContent">Haz clic sobre cualquier fecha para ver quién reservó y gestionar las citas en tiempo real.</div>
             </div>
         </div>
 
         <!-- Poste Derecho -->
-        <div class="barber-pole-wrapper">
-            <div class="barber-pole-cap-top"></div>
-            <div class="barber-pole-glass">
-                <div class="barber-pole-stripes"></div>
-            </div>
+        <div class="barber-pole-container">
+            <div class="barber-pole-cap"></div>
             <div class="barber-pole-cap-bottom"></div>
         </div>
     </div>
 
     <script>
+        // =========================================================
+        // CONEXIÓN DEFINITIVA CON TU PROYECTO DE SUPABASE
+        // =========================================================
         const SUPABASE_URL = "https://mfvxrdgkasahmfstcrhd.supabase.co";
+        // ⚠️ PEGA AQUÍ TU CLAVE COMPLETA DE ANTES DENTRO DE LAS COMILLAS:
         const SUPABASE_ANON_KEY = "sb_publishable_8IGgK5Uisvx-t91HWf1rIqw_Hp8h21zN3U3g3M3c5W6k7X"; 
+
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        const ADMIN_PIN = "1234";
-        let isAdminMode = false;
         let citas = [];
         let currentDate = new Date();
         let currentMonth = currentDate.getMonth();
@@ -497,9 +500,11 @@
         const diasSemana = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 
         window.addEventListener('DOMContentLoaded', async () => {
+            // Ponemos como fecha mínima para el formulario el día de hoy
             const hoyStr = new Date().toISOString().split('T')[0];
             document.getElementById('fecha').min = hoyStr;
 
+            // Sincronizar el calendario cuando se cambia la fecha manualmente en el formulario
             document.getElementById('fecha').addEventListener('change', (e) => {
                 const formDate = e.target.value;
                 if (formDate) {
@@ -512,42 +517,40 @@
                 }
             });
 
+            // Cargar datos por primera vez
             await cargarCitasDesdeSupabase();
         });
 
-        window.toggleAdminMode = function() {
-            const btn = document.getElementById('adminBtn');
-            const dashboard = document.getElementById('adminDashboard');
-
-            if (isAdminMode) {
-                isAdminMode = false;
-                btn.innerText = "🔒 Admin";
-                btn.classList.remove('active');
-                dashboard.style.display = "none";
-                if (selectedDateStr) mostrarDetallesDia(selectedDateStr);
-            } else {
-                const pin = prompt("Ingresa el PIN de administración:");
-                if (pin === ADMIN_PIN) {
-                    isAdminMode = true;
-                    btn.innerText = "🔓 Modo Admin";
-                    btn.classList.add('active');
-                    dashboard.style.display = "flex";
-                    if (selectedDateStr) mostrarDetallesDia(selectedDateStr);
-                } else if (pin !== null) {
-                    alert("PIN incorrecto.");
-                }
-            }
-        };
-
+        // Traer todas las citas desde la base de datos central en la nube
         async function cargarCitasDesdeSupabase() {
-            const { data, error } = await supabase.from('reservas').select('*');
-            if (error) { console.error("Error DB:", error); return; }
+            const { data, error } = await supabase
+                .from('reservas')
+                .select('*');
+            
+            if (error) {
+                console.error("Error cargando base de datos:", error);
+                return;
+            }
+
             citas = data || [];
             renderCalendar();
             calcularIngresosDashboard();
-            if (selectedDateStr) mostrarDetallesDia(selectedDateStr);
+
+            // Si hay un día seleccionado, actualizar su lista inferior
+            if (selectedDateStr) {
+                mostrarDetallesDia(selectedDateStr);
+            }
         }
 
+        // Suscripción Realtime (Actualiza la app automáticamente si alguien reserva desde otro teléfono)
+        supabase
+            .channel('schema-db-changes')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'reservas' }, () => {
+                cargarCitasDesdeSupabase();
+            })
+            .subscribe();
+
+        // Control de los meses del calendario
         document.getElementById('prevMonth').addEventListener('click', () => {
             currentMonth--;
             if (currentMonth < 0) { currentMonth = 11; currentYear--; }
@@ -560,12 +563,14 @@
             renderCalendar();
         });
 
+        // Dibujar el calendario en la pantalla
         function renderCalendar() {
             const grid = document.getElementById('calendarGrid');
             const title = document.getElementById('calendarTitle');
             grid.innerHTML = '';
             title.innerText = `${mesesNames[currentMonth]} ${currentYear}`;
 
+            // Poner cabecera de días
             diasSemana.forEach(dia => {
                 const dHeader = document.createElement('div');
                 dHeader.className = 'grid-header';
@@ -576,12 +581,14 @@
             const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay();
             const totalDays = new Date(currentYear, currentMonth + 1, 0).getDate();
 
+            // Espacios del mes anterior
             for (let i = 0; i < firstDayIndex; i++) {
                 const emptyCell = document.createElement('div');
                 emptyCell.className = 'grid-cell other-month';
                 grid.appendChild(emptyCell);
             }
 
+            // Días activos
             for (let day = 1; day <= totalDays; day++) {
                 const cell = document.createElement('div');
                 cell.className = 'grid-cell';
@@ -591,10 +598,13 @@
                 const fDay = String(day).padStart(2, '0');
                 const dateStr = `${currentYear}-${fMonth}-${fDay}`;
 
-                if (citas.some(c => c.fecha === dateStr)) {
+                // Marcar con punto si tiene reservas
+                const tieneCita = citas.some(c => c.fecha === dateStr);
+                if (tieneCita) {
                     cell.classList.add('has-bookings');
                 }
 
+                // Marcar si está seleccionado
                 if (dateStr === selectedDateStr) {
                     cell.classList.add('selected');
                 }
@@ -611,17 +621,18 @@
             }
         }
 
+        // Mostrar lista detallada de reservas abajo del calendario
         function mostrarDetallesDia(dateStr) {
             const title = document.getElementById('detailsTitle');
             const content = document.getElementById('detailsContent');
             const [anio, mes, dia] = dateStr.split('-');
-            title.innerText = `Horarios: ${dia}/${mes}/${anio}`;
+            title.innerText = `Reservas para el día ${dia}/${mes}/${anio}`;
 
             const filtradas = citas.filter(c => c.fecha === dateStr)
                                    .sort((a,b) => a.hora.localeCompare(b.hora));
 
             if (filtradas.length === 0) {
-                content.innerHTML = "No hay reservas registradas para este día.";
+                content.innerHTML = "No hay personas registradas para este día. ¡Horas 100% disponibles!";
                 return;
             }
 
@@ -629,48 +640,57 @@
             filtradas.forEach(cita => {
                 const item = document.createElement('div');
                 item.className = 'booking-item';
-
-                if (isAdminMode) {
-                    item.innerHTML = `
-                        <div class="booking-info">
-                            <strong>⏰ ${cita.hora} hrs — ${cita.nombre}</strong>
-                            <small>📞 ${cita.telefono} | 💇 ${cita.servicio}</small>
-                        </div>
-                        <button class="delete-btn" onclick="eliminarCita('${cita.id}')">Cancelar</button>
-                    `;
-                } else {
-                    item.innerHTML = `
-                        <div class="booking-info">
-                            <strong>⏰ ${cita.hora} hrs — Horario Reservado</strong>
-                            <small>No disponible</small>
-                        </div>
-                    `;
-                }
+                item.innerHTML = `
+                    <div class="booking-info">
+                        <strong>⏰ ${cita.hora} hrs — ${cita.nombre}</strong>
+                        <small>📞 Tel: ${cita.telefono} | 💇 Servicio: ${cita.servicio}</small>
+                    </div>
+                    <button class="delete-btn" onclick="eliminarCita('${cita.id}')">Cancelar</button>
+                `;
                 content.appendChild(item);
             });
         }
 
+        // Lógica de cálculo financiero automático del Dashboard
         function calcularIngresosDashboard() {
-            let totalHoy = 0, totalMes = 0, totalHistorico = 0;
+            let totalHoy = 0;
+            let totalMes = 0;
+            let totalHistorico = 0;
+
             const hoyStr = new Date().toISOString().split('T')[0];
             const mesActualStr = String(new Date().getMonth() + 1).padStart(2, '0');
             const anioActualStr = String(new Date().getFullYear());
 
-            document.getElementById('nombreMesAnio').innerText = `Mes (${mesesNames[new Date().getMonth()]})`;
+            // Cambiar el label del mes actual dinámicamente
+            document.getElementById('nombreMesAnio').innerText = `Ingresos ${mesesNames[new Date().getMonth()]}`;
 
             citas.forEach(cita => {
-                const valor = (cita.servicio.includes("Barba") || cita.servicio.includes("10.000")) ? 10000 : 8000;
+                let valor = 0;
+                if (cita.servicio.includes("Barba") || cita.servicio.includes("10.000")) {
+                    valor = 10000;
+                } else {
+                    valor = 8000;
+                }
+
                 totalHistorico += valor;
-                if (cita.fecha === hoyStr) totalHoy += valor;
+
+                if (cita.fecha === hoyStr) {
+                    totalHoy += valor;
+                }
+
                 const [cAnio, cMes] = cita.fecha.split('-');
-                if (cMes === mesActualStr && cAnio === anioActualStr) totalMes += valor;
+                if (cMes === mesActualStr && cAnio === anioActualStr) {
+                    totalMes += valor;
+                }
             });
 
+            // Pintar los valores formateados en moneda CLP
             document.getElementById('ingresosDia').innerText = `$${totalHoy.toLocaleString('es-CL')}`;
             document.getElementById('ingresosMes').innerText = `$${totalMes.toLocaleString('es-CL')}`;
             document.getElementById('totales').innerText = `$${totalHistorico.toLocaleString('es-CL')}`;
         }
 
+        // Enviar nueva reserva a la nube
         document.getElementById('formReserva').addEventListener('submit', async (e) => {
             e.preventDefault();
             const nombre = document.getElementById('nombre').value;
@@ -679,23 +699,42 @@
             const fecha = document.getElementById('fecha').value;
             const hora = document.getElementById('hora').value;
 
-            if (citas.some(c => c.fecha === fecha && c.hora === hora)) {
-                alert("Este horario ya está ocupado.");
+            // Evitar duplicados de hora el mismo día
+            const ocupado = citas.some(c => c.fecha === fecha && c.hora === hora);
+            if (ocupado) {
+                alert("Lo sentimos, este horario ya está reservado. Por favor elige otra hora.");
                 return;
             }
 
-            const { error } = await supabase.from('reservas').insert([{ nombre, telefono, servicio, fecha, hora }]);
-            if (error) { alert("Error: " + error.message); return; }
+            // Insertar en Supabase
+            const { error } = await supabase
+                .from('reservas')
+                .insert([{ nombre, telefono, servicio, fecha, hora }]);
 
-            alert("¡Cita agendada con éxito!");
+            if (error) {
+                alert("Error al guardar en la nube: " + error.message);
+                return;
+            }
+
+            alert("¡Cita agendada con éxito! Ya se sincronizó en el sistema.");
             document.getElementById('formReserva').reset();
             await cargarCitasDesdeSupabase();
         });
 
+        // Cancelar cita directamente desde la lista inferior
         window.eliminarCita = async function(id) {
-            if (confirm("¿Cancelar esta reserva?")) {
-                const { error } = await supabase.from('reservas').delete().eq('id', id);
-                if (error) { alert("Error: " + error.message); return; }
+            if (confirm("¿Estás seguro de que deseas eliminar esta reserva del sistema?")) {
+                const { error } = await supabase
+                    .from('reservas')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) {
+                    alert("No se pudo eliminar la cita: " + error.message);
+                    return;
+                }
+
+                alert("Reserva cancelada correctamente.");
                 await cargarCitasDesdeSupabase();
             }
         }
