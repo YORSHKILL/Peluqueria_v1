@@ -27,7 +27,6 @@
             padding: 20px 10px;
         }
 
-        /* Contenedor Principal */
         .container {
             width: 100%;
             max-width: 480px;
@@ -39,7 +38,7 @@
             position: relative;
         }
 
-        /* --- ENCABEZADO: TÍTULO FLANQUEADO POR LOS BARBER POLES PEQUEÑOS --- */
+        /* --- ENCABEZADO CON BARBER POLES --- */
         .header-title-wrapper {
             display: flex;
             align-items: center;
@@ -58,7 +57,6 @@
             margin: 0;
         }
 
-        /* --- POSTES METÁLICOS 3D (VERSIÓN PEQUEÑA AL LADO DEL NOMBRE) --- */
         .mini-pole-container {
             width: 22px;
             height: 48px;
@@ -73,12 +71,11 @@
             flex-direction: column;
             align-items: center;
             position: relative;
-            transform: scale(0.075); /* Escala exacta para que mida ~48px de alto */
+            transform: scale(0.075);
             transform-origin: center center;
             flex-shrink: 0;
         }
 
-        /* Esferas metálicas */
         .metal-cap {
             width: 140px;
             height: 140px;
@@ -89,7 +86,6 @@
             z-index: 2;
         }
 
-        /* Soportes cilíndricos chatos de metal */
         .metal-connector {
             width: 170px;
             height: 38px;
@@ -100,17 +96,9 @@
             z-index: 3;
         }
 
-        .top-connector {
-            margin-top: -36px;
-            margin-bottom: -8px;
-        }
+        .top-connector { margin-top: -36px; margin-bottom: -8px; }
+        .bottom-connector { margin-bottom: -36px; margin-top: -8px; }
 
-        .bottom-connector {
-            margin-bottom: -36px;
-            margin-top: -8px;
-        }
-
-        /* Cristal del poste */
         .glass-cylinder {
             width: 146px;
             height: 480px;
@@ -123,7 +111,6 @@
             box-sizing: border-box;
         }
 
-        /* Franjas animadas en 135deg con ciclo matemático 226.27px */
         .stripes {
             width: 100%;
             height: 100%;
@@ -132,13 +119,13 @@
             left: 0;
             background: repeating-linear-gradient(
                 135deg,
-                #9b111e,          /* Rojo profundo */
+                #9b111e,
                 #9b111e 40px,
-                #ffffff 40px,      /* Blanco */
+                #ffffff 40px,
                 #ffffff 80px,
-                #124076 80px,      /* Azul real */
+                #124076 80px,
                 #124076 120px,
-                #ffffff 120px,     /* Blanco */
+                #ffffff 120px,
                 #ffffff 160px
             );
             background-size: 100% 226.27px; 
@@ -177,7 +164,7 @@
             to { background-position: 0 -226.27px; }
         }
 
-        /* --- ESTILOS FORMULARIO Y CALENDARIO (NEGRO Y DORADO) --- */
+        /* --- BOTÓN ADMIN Y FORMULARIO --- */
         .admin-trigger {
             position: absolute;
             top: 20px;
@@ -191,6 +178,7 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
+            z-index: 10;
         }
 
         .admin-trigger:hover {
@@ -211,9 +199,7 @@
             margin-bottom: 25px;
         }
 
-        .form-group {
-            margin-bottom: 16px;
-        }
+        .form-group { margin-bottom: 16px; }
 
         label {
             display: block;
@@ -336,10 +322,7 @@
 
         .grid-cell:hover { background-color: #2c2c2c; border-color: #555; }
 
-        .grid-cell.other-month {
-            opacity: 0.2;
-            cursor: default;
-        }
+        .grid-cell.other-month { opacity: 0.2; cursor: default; }
 
         .grid-cell.selected {
             background: #d4af37 !important;
@@ -405,11 +388,9 @@
 <body>
 
     <div class="container">
-        <button id="adminBtn" class="admin-trigger" onclick="toggleAdminMode()">🔒 Admin</button>
+        <button id="adminBtn" class="admin-trigger">🔒 Admin</button>
 
-        <!-- Encabezado con los 2 Barber Poles exactos a los lados del Nombre -->
         <div class="header-title-wrapper">
-            <!-- Pole Izquierdo -->
             <div class="mini-pole-container">
                 <div class="barber-pole">
                     <div class="metal-cap"></div>
@@ -426,7 +407,6 @@
 
             <h1>Peluquería Hombre</h1>
 
-            <!-- Pole Derecho -->
             <div class="mini-pole-container">
                 <div class="barber-pole">
                     <div class="metal-cap"></div>
@@ -444,7 +424,6 @@
 
         <p class="subtitle">Reserva tu cita en pocos segundos</p>
 
-        <!-- Dashboard Admin -->
         <div class="dashboard-stats" id="adminDashboard">
             <div class="stat-box">
                 <div class="stat-label">Ingresos Hoy</div>
@@ -460,7 +439,6 @@
             </div>
         </div>
 
-        <!-- Formulario -->
         <form id="formReserva">
             <div class="form-group">
                 <label for="nombre">Nombre</label>
@@ -504,10 +482,9 @@
                 </div>
             </div>
 
-            <button type="submit" class="reserve-button">Reservar Hora</button>
+            <button type="submit" class="reserve-button" id="btnReserva">Reservar Hora</button>
         </form>
 
-        <!-- Calendario -->
         <div class="calendar-section">
             <div class="calendar-header">
                 <button class="nav-button" id="prevMonth">◀ Anterior</button>
@@ -524,11 +501,12 @@
         </div>
     </div>
 
-    <!-- Script de Supabase -->
     <script>
+        // 🔑 CONFIGURACIÓN OFICIAL DE SUPABASE (PROYECTO PELUQUERÍA)
         const SUPABASE_URL = "https://mfvxrdgkasahmfstcrhd.supabase.co";
-        const SUPABASE_ANON_KEY = "sb_publishable_8IGgK5Uisvx-t91HWf1rIqw_Hp8h21zN3U3g3M3c5W6k7X"; 
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1mdnhyZGdrYXNhaG1fc3RjcmhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQzMTQxMDEsImV4cCI6MjA5OTg5MDEwMX0.t4kakqdM5zXslqSB4cOFzuQSInDnKIHUW0CfjwQy-1g"; 
+
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         const ADMIN_PIN = "1234";
         let isAdminMode = false;
@@ -541,9 +519,11 @@
         const mesesNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
         const diasSemana = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 
-        window.addEventListener('DOMContentLoaded', async () => {
+        document.addEventListener('DOMContentLoaded', () => {
             const hoyStr = new Date().toISOString().split('T')[0];
             document.getElementById('fecha').min = hoyStr;
+
+            document.getElementById('adminBtn').addEventListener('click', toggleAdminMode);
 
             document.getElementById('fecha').addEventListener('change', (e) => {
                 const formDate = e.target.value;
@@ -557,10 +537,24 @@
                 }
             });
 
-            await cargarCitasDesdeSupabase();
+            document.getElementById('prevMonth').addEventListener('click', () => {
+                currentMonth--;
+                if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+                renderCalendar();
+            });
+
+            document.getElementById('nextMonth').addEventListener('click', () => {
+                currentMonth++;
+                if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+                renderCalendar();
+            });
+
+            document.getElementById('formReserva').addEventListener('submit', guardarReserva);
+
+            cargarCitasDesdeSupabase();
         });
 
-        window.toggleAdminMode = function() {
+        function toggleAdminMode() {
             const btn = document.getElementById('adminBtn');
             const dashboard = document.getElementById('adminDashboard');
 
@@ -582,28 +576,20 @@
                     alert("PIN incorrecto.");
                 }
             }
-        };
-
-        async function cargarCitasDesdeSupabase() {
-            const { data, error } = await supabase.from('reservas').select('*');
-            if (error) { console.error("Error DB:", error); return; }
-            citas = data || [];
-            renderCalendar();
-            calcularIngresosDashboard();
-            if (selectedDateStr) mostrarDetallesDia(selectedDateStr);
         }
 
-        document.getElementById('prevMonth').addEventListener('click', () => {
-            currentMonth--;
-            if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-            renderCalendar();
-        });
-
-        document.getElementById('nextMonth').addEventListener('click', () => {
-            currentMonth++;
-            if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-            renderCalendar();
-        });
+        async function cargarCitasDesdeSupabase() {
+            try {
+                const { data, error } = await supabaseClient.from('reservas').select('*');
+                if (error) throw error;
+                citas = data || [];
+                renderCalendar();
+                calcularIngresosDashboard();
+                if (selectedDateStr) mostrarDetallesDia(selectedDateStr);
+            } catch (err) {
+                console.error("Error conectando a Supabase:", err);
+            }
+        }
 
         function renderCalendar() {
             const grid = document.getElementById('calendarGrid');
@@ -716,8 +702,12 @@
             document.getElementById('totales').innerText = `$${totalHistorico.toLocaleString('es-CL')}`;
         }
 
-        document.getElementById('formReserva').addEventListener('submit', async (e) => {
+        async function guardarReserva(e) {
             e.preventDefault();
+            const btn = document.getElementById('btnReserva');
+            btn.disabled = true;
+            btn.innerText = "Reservando...";
+
             const nombre = document.getElementById('nombre').value;
             const telefono = document.getElementById('telefono').value;
             const servicio = document.getElementById('servicio').value;
@@ -726,20 +716,31 @@
 
             if (citas.some(c => c.fecha === fecha && c.hora === hora)) {
                 alert("Este horario ya está ocupado.");
+                btn.disabled = false;
+                btn.innerText = "Reservar Hora";
                 return;
             }
 
-            const { error } = await supabase.from('reservas').insert([{ nombre, telefono, servicio, fecha, hora }]);
-            if (error) { alert("Error: " + error.message); return; }
-
-            alert("¡Cita agendada con éxito!");
-            document.getElementById('formReserva').reset();
-            await cargarCitasDesdeSupabase();
-        });
+            try {
+                const { error } = await supabaseClient.from('reservas').insert([{ nombre, telefono, servicio, fecha, hora }]);
+                if (error) { 
+                    alert("Error al guardar en Supabase: " + error.message); 
+                } else {
+                    alert("¡Cita agendada con éxito!");
+                    document.getElementById('formReserva').reset();
+                    await cargarCitasDesdeSupabase();
+                }
+            } catch (err) {
+                alert("Ocurrió un error inesperado al conectar con Supabase.");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Reservar Hora";
+            }
+        }
 
         window.eliminarCita = async function(id) {
             if (confirm("¿Cancelar esta reserva?")) {
-                const { error } = await supabase.from('reservas').delete().eq('id', id);
+                const { error } = await supabaseClient.from('reservas').delete().eq('id', id);
                 if (error) { alert("Error: " + error.message); return; }
                 await cargarCitasDesdeSupabase();
             }
