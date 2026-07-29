@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Peluquería Hombre - Sistema de Reservas</title>
-    <!-- Librería oficial de Supabase -->
+    <title>Peluquería Hombre - Reserva tu Hora</title>
+    <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Fuentes Elegantes Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         * {
             box-sizing: border-box;
@@ -14,93 +16,101 @@
         }
 
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: #0d0d0d;
-            background-image: radial-gradient(circle at center, #1a1a1a 0%, #080808 100%);
+            font-family: 'Poppins', sans-serif;
+            background: #0a0a0a url('https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat fixed;
             color: #f5f5f5;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px 10px;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 0;
         }
 
         .main-wrapper {
-            display: flex;
-            align-items: stretch;
-            justify-content: center;
-            gap: 20px;
-            width: 100%;
-            max-width: 850px;
-            margin: 0 auto;
-        }
-
-        /* Postes de barbero 100% Vectoriales y Adaptables */
-        .barber-pole-container {
-            width: 50px;
-            min-height: 500px;
-            border-radius: 25px;
-            overflow: hidden;
-            background-color: #fff;
-            box-shadow: 0 0 20px rgba(0,0,0,0.8), inset 0 0 10px rgba(0,0,0,0.5);
             position: relative;
-            border: 3px solid #333;
-            flex-shrink: 0;
+            z-index: 1;
             display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            width: 100%;
+            max-width: 950px;
         }
 
-        .barber-pole-container::before {
-            content: '';
+        /* Postes de Barbero Clásicos */
+        .barber-pole-wrapper {
+            width: 55px;
+            height: 520px;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .barber-pole-cap-top, .barber-pole-cap-bottom {
+            width: 65px;
+            height: 35px;
+            background: linear-gradient(135deg, #e6c875, #ffd700, #997a15);
             position: absolute;
-            top: 0;
-            left: 0;
+            left: -5px;
+            border-radius: 50% 50% 10% 10%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.6), inset 0 2px 5px rgba(255,255,255,0.6);
+            z-index: 3;
+        }
+
+        .barber-pole-cap-top { top: -15px; }
+        .barber-pole-cap-bottom { bottom: -15px; border-radius: 10% 10% 50% 50%; }
+
+        .barber-pole-glass {
+            width: 100%;
+            height: 100%;
+            border-radius: 30px;
+            overflow: hidden;
+            border: 2px solid #d4af37;
+            box-shadow: 0 0 25px rgba(212, 175, 55, 0.3), inset 0 0 15px rgba(0,0,0,0.8);
+            position: relative;
+            background: #fff;
+        }
+
+        .barber-pole-stripes {
             width: 100%;
             height: 200%;
             background: repeating-linear-gradient(
-                45deg,
-                #d32f2f,
-                #d32f2f 20px,
-                #ffffff 20px,
-                #ffffff 40px,
-                #1976d2 40px,
-                #1976d2 60px,
-                #ffffff 60px,
-                #ffffff 80px
+                -45deg,
+                #cc1111,
+                #cc1111 25px,
+                #ffffff 25px,
+                #ffffff 50px,
+                #1144cc 50px,
+                #1144cc 75px,
+                #ffffff 75px,
+                #ffffff 100px
             );
-            animation: barberPoleSpin 4s linear infinite;
+            animation: spinPole 5s linear infinite;
         }
 
-        @keyframes barberPoleSpin {
+        @keyframes spinPole {
             0% { transform: translateY(0); }
-            100% { transform: translateY(-80px); }
+            100% { transform: translateY(-100px); }
         }
 
-        .barber-pole-cap {
-            height: 20px;
-            width: 100%;
-            background: linear-gradient(to bottom, #eeeeee, #888888, #333333);
-            border-radius: 20px 20px 0 0;
-            z-index: 2;
-        }
-
-        .barber-pole-cap-bottom {
-            height: 20px;
-            width: 100%;
-            background: linear-gradient(to top, #eeeeee, #888888, #333333);
-            border-radius: 0 0 20px 20px;
-            z-index: 2;
-        }
-
-        /* Panel Central Elegante */
+        /* Panel Central Prémia */
         .content-container {
             flex: 1;
-            max-width: 550px;
-            background: rgba(22, 22, 22, 0.95);
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.08);
+            max-width: 540px;
+            background: rgba(18, 18, 18, 0.92);
+            backdrop-filter: blur(10px);
+            padding: 35px 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 30px rgba(212, 175, 55, 0.1);
             position: relative;
         }
 
@@ -108,98 +118,111 @@
             position: absolute;
             top: 20px;
             right: 20px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #bbb;
-            padding: 6px 12px;
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid #d4af37;
+            color: #d4af37;
+            padding: 6px 14px;
             border-radius: 20px;
-            font-size: 12px;
+            font-size: 11px;
+            font-weight: 600;
             cursor: pointer;
+            letter-spacing: 1px;
+            text-transform: uppercase;
             transition: all 0.3s ease;
         }
 
         .admin-trigger:hover {
-            color: #fff;
-            background: rgba(211, 47, 47, 0.4);
-            border-color: #d32f2f;
+            background: #d4af37;
+            color: #000;
+            box-shadow: 0 0 12px rgba(212, 175, 55, 0.6);
         }
 
         .admin-trigger.active {
-            color: #81c784;
+            background: #81c784;
+            color: #000;
             border-color: #81c784;
-            background: rgba(129, 199, 132, 0.15);
         }
 
         h1 {
+            font-family: 'Cinzel', serif;
             text-align: center;
-            font-size: 28px;
-            margin-bottom: 5px;
-            color: #ffffff;
-            letter-spacing: 0.5px;
+            font-size: 30px;
+            color: #d4af37;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+            text-shadow: 0 2px 10px rgba(212, 175, 55, 0.3);
         }
 
         .subtitle {
             text-align: center;
-            font-size: 14px;
-            color: #888;
+            font-size: 13px;
+            color: #aaa;
             margin-bottom: 25px;
+            letter-spacing: 1px;
         }
 
         .form-group {
-            margin-bottom: 16px;
+            margin-bottom: 18px;
         }
 
         label {
             display: block;
             margin-bottom: 6px;
-            color: #ccc;
+            color: #d4af37;
+            font-size: 12px;
             font-weight: 600;
-            font-size: 13px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
         }
 
         input[type="text"], input[type="date"], select {
             width: 100%;
-            padding: 12px;
-            background-color: #1a1a1a;
-            border: 1px solid #333;
+            padding: 12px 15px;
+            background-color: rgba(30, 30, 30, 0.8);
+            border: 1px solid rgba(212, 175, 55, 0.2);
             border-radius: 8px;
             color: #ffffff;
             font-size: 14px;
-            transition: all 0.2s;
+            transition: all 0.3s;
         }
 
         input:focus, select:focus {
-            border-color: #d32f2f;
+            border-color: #d4af37;
             outline: none;
-            box-shadow: 0 0 6px rgba(211, 47, 47, 0.4);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+            background-color: rgba(40, 40, 40, 0.9);
         }
 
         .reserve-button {
             width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #d32f2f, #9a0007);
-            color: #ffffff;
+            padding: 15px;
+            background: linear-gradient(135deg, #d4af37, #aa820a);
+            color: #000;
             border: none;
             border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
             cursor: pointer;
-            margin-top: 15px;
+            margin-top: 10px;
             margin-bottom: 25px;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
         }
 
         .reserve-button:hover {
-            transform: translateY(-1px);
-            background: linear-gradient(135deg, #e53935, #c62828);
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, #ffe066, #d4af37);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5);
         }
 
         /* Dashboard Admin */
         .dashboard-stats {
-            background: #141414;
-            border: 1px solid #2a2a2a;
-            border-radius: 8px;
+            background: rgba(30, 30, 30, 0.9);
+            border: 1px solid #d4af37;
+            border-radius: 10px;
             padding: 15px;
             margin-bottom: 20px;
             display: none;
@@ -207,12 +230,12 @@
         }
 
         .stat-box { text-align: center; }
-        .stat-label { font-size: 11px; color: #888; text-transform: uppercase; margin-bottom: 4px; }
-        .stat-value { font-size: 16px; font-weight: bold; color: #81c784; }
+        .stat-label { font-size: 10px; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-value { font-size: 17px; font-weight: bold; color: #81c784; }
 
         /* Calendario */
         .calendar-section {
-            border-top: 1px solid #2a2a2a;
+            border-top: 1px solid rgba(212, 175, 55, 0.2);
             padding-top: 20px;
         }
 
@@ -224,21 +247,27 @@
         }
 
         .nav-button {
-            background-color: #2a2a2a;
-            color: #fff;
-            border: 1px solid #333;
-            padding: 8px 14px;
+            background-color: rgba(255, 255, 255, 0.05);
+            color: #d4af37;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            padding: 6px 14px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 12px;
+            transition: all 0.3s;
         }
 
-        .nav-button:hover { background-color: #383838; }
+        .nav-button:hover {
+            background-color: #d4af37;
+            color: #000;
+        }
 
         .calendar-title {
+            font-family: 'Cinzel', serif;
             font-size: 16px;
             font-weight: bold;
-            color: #fff;
+            color: #d4af37;
+            letter-spacing: 1px;
         }
 
         .calendar-grid {
@@ -250,81 +279,89 @@
         .grid-header {
             text-align: center;
             font-weight: bold;
-            font-size: 12px;
-            color: #777;
+            font-size: 11px;
+            color: #888;
             padding-bottom: 5px;
+            text-transform: uppercase;
         }
 
         .grid-cell {
             padding: 10px 0;
             text-align: center;
             font-size: 13px;
-            background-color: #1a1a1a;
-            border: 1px solid #282828;
+            background-color: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 6px;
             cursor: pointer;
             position: relative;
+            transition: all 0.2s;
         }
 
-        .grid-cell:hover { background-color: #2a2a2a; }
+        .grid-cell:hover {
+            border-color: #d4af37;
+            background-color: rgba(212, 175, 55, 0.1);
+        }
 
         .grid-cell.other-month {
-            opacity: 0.2;
+            opacity: 0.15;
             cursor: default;
         }
 
         .grid-cell.selected {
-            background: #d32f2f !important;
-            color: #fff;
+            background: #d4af37 !important;
+            color: #000 !important;
             font-weight: bold;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
         }
 
         .has-bookings::after {
             content: '';
             position: absolute;
-            bottom: 3px;
+            bottom: 4px;
             left: 50%;
             transform: translateX(-50%);
-            width: 5px;
-            height: 5px;
-            background-color: #ff5252;
+            width: 4px;
+            height: 4px;
+            background-color: #d4af37;
             border-radius: 50%;
         }
 
         .day-details {
-            background-color: #141414;
+            background-color: rgba(255, 255, 255, 0.02);
             padding: 15px;
             border-radius: 8px;
-            border: 1px solid #252525;
+            border: 1px solid rgba(255, 255, 255, 0.08);
             margin-top: 15px;
         }
 
         .day-details h4 {
             margin-bottom: 10px;
-            font-size: 14px;
-            color: #ddd;
-            border-bottom: 1px solid #222;
+            font-size: 13px;
+            color: #d4af37;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
             padding-bottom: 6px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
         }
 
-        #detailsContent { font-size: 13px; color: #999; }
+        #detailsContent { font-size: 13px; color: #aaa; }
 
         .booking-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: #1e1e1e;
-            padding: 10px;
+            background: rgba(30, 30, 30, 0.8);
+            padding: 10px 12px;
             border-radius: 6px;
             margin-bottom: 6px;
-            border-left: 3px solid #d32f2f;
+            border-left: 3px solid #d4af37;
         }
 
-        .booking-info strong { color: #fff; display: block; }
-        .booking-info small { color: #888; }
+        .booking-info strong { color: #fff; display: block; font-size: 13px; }
+        .booking-info small { color: #888; font-size: 11px; }
 
         .delete-btn {
-            background-color: #b71c1c;
+            background-color: #c62828;
             color: white;
             border: none;
             padding: 5px 10px;
@@ -333,16 +370,20 @@
             font-size: 11px;
         }
 
-        @media (max-width: 600px) {
-            .barber-pole-container { display: none; }
-            .content-container { padding: 20px; }
+        @media (max-width: 650px) {
+            .barber-pole-wrapper { display: none; }
+            .content-container { padding: 25px 20px; }
         }
     </style>
 </head>
 <body>
     <div class="main-wrapper">
-        <div class="barber-pole-container">
-            <div class="barber-pole-cap"></div>
+        <!-- Poste Izquierdo -->
+        <div class="barber-pole-wrapper">
+            <div class="barber-pole-cap-top"></div>
+            <div class="barber-pole-glass">
+                <div class="barber-pole-stripes"></div>
+            </div>
             <div class="barber-pole-cap-bottom"></div>
         </div>
 
@@ -429,8 +470,12 @@
             </div>
         </div>
 
-        <div class="barber-pole-container">
-            <div class="barber-pole-cap"></div>
+        <!-- Poste Derecho -->
+        <div class="barber-pole-wrapper">
+            <div class="barber-pole-cap-top"></div>
+            <div class="barber-pole-glass">
+                <div class="barber-pole-stripes"></div>
+            </div>
             <div class="barber-pole-cap-bottom"></div>
         </div>
     </div>
