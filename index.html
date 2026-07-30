@@ -350,12 +350,19 @@
             margin-top: 15px;
         }
 
-        .day-details h4 {
+        .day-details-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #222;
+            padding-bottom: 6px;
             margin-bottom: 8px;
+        }
+
+        .day-details h4 {
             font-size: 13px;
             color: #d4af37;
-            border-bottom: 1px solid #222;
-            padding-bottom: 4px;
+            margin: 0;
         }
 
         #detailsContent { font-size: 12px; color: #aaa; }
@@ -371,6 +378,11 @@
             border-left: 3px solid #d4af37;
         }
 
+        .booking-item.blocked {
+            border-left-color: #e53935;
+            background: #1c1414;
+        }
+
         .booking-info strong { color: #fff; display: block; }
         .booking-info small { color: #888; }
 
@@ -382,6 +394,22 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 11px;
+        }
+
+        .btn-action-small {
+            background-color: #333;
+            color: #d4af37;
+            border: 1px solid #d4af37;
+            padding: 3px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .btn-action-small:hover {
+            background-color: #d4af37;
+            color: #000;
         }
     </style>
 </head>
@@ -467,17 +495,7 @@
                 <div style="flex: 1;">
                     <label for="hora">Hora</label>
                     <select id="hora" required>
-                        <option value="">-- Elige hora --</option>
-                        <option value="09:00">09:00 AM</option>
-                        <option value="10:00">10:00 AM</option>
-                        <option value="11:00">11:00 AM</option>
-                        <option value="12:00">12:00 PM</option>
-                        <option value="15:00">03:00 PM</option>
-                        <option value="16:00">04:00 PM</option>
-                        <option value="17:00">05:00 PM</option>
-                        <option value="18:00">06:00 PM</option>
-                        <option value="19:00">07:00 PM</option>
-                        <option value="20:00">08:00 PM</option>
+                        <option value="">-- Elige fecha primero --</option>
                     </select>
                 </div>
             </div>
@@ -496,7 +514,10 @@
         </div>
 
         <div class="day-details">
-            <h4 id="detailsTitle">Selecciona un día en el calendario</h4>
+            <div class="day-details-header">
+                <h4 id="detailsTitle">Selecciona un día en el calendario</h4>
+                <div id="adminDayActions"></div>
+            </div>
             <div id="detailsContent">Haz clic en una fecha para ver disponibilidades.</div>
         </div>
     </div>
@@ -516,6 +537,7 @@
         let currentYear = currentDate.getFullYear();
         let selectedDateStr = "";
 
+        const ALL_HOURS = ["09:00", "10:00", "11:00", "12:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"];
         const mesesNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
         const diasSemana = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 
@@ -534,6 +556,7 @@
                     currentMonth = parseInt(dateParts[1]) - 1;
                     renderCalendar();
                     mostrarDetallesDia(selectedDateStr);
+                    actualizarOpcionesHorarios(selectedDateStr);
                 }
             });
 
@@ -585,10 +608,52 @@
                 citas = data || [];
                 renderCalendar();
                 calcularIngresosDashboard();
-                if (selectedDateStr) mostrarDetallesDia(selectedDateStr);
+                if (selectedDateStr) {
+                    mostrarDetallesDia(selectedDateStr);
+                    actualizarOpcionesHorarios(selectedDateStr);
+                }
             } catch (err) {
                 console.error("Error conectando a Supabase:", err);
             }
+        }
+
+        function actualizarOpcionesHorarios(fecha) {
+            const selectHora = document.getElementById('hora');
+            selectHora.innerHTML = '';
+
+            if (!fecha) {
+                selectHora.innerHTML = '<option value="">-- Elige fecha primero --</option>';
+                return;
+            }
+
+            // Horas ocupadas (ya sea por reserva de cliente o por bloqueo admin)
+            const horasOcupadas = citas.filter(c => c.fecha === fecha).map(c => c.hora);
+            const horasDisponibles = ALL_HOURS.filter(h => !horasOcupadas.includes(h));
+
+            if (horasDisponibles.length === 0) {
+                selectHora.innerHTML = '<option value="">-- Sin horas disponibles --</option>';
+                return;
+            }
+
+            const defaultOpt = document.createElement('option');
+            defaultOpt.value = "";
+            defaultOpt.innerText = "-- Elige hora --";
+            selectHora.appendChild(defaultOpt);
+
+            horasDisponibles.forEach(h => {
+                const opt = document.createElement('option');
+                opt.value = h;
+
+                const [hh, mm] = h.split(':');
+                let horaNum = parseInt(hh);
+                let ampm = horaNum >= 12 ? 'PM' : 'AM';
+                let hora12 = horaNum % 12;
+                if (hora12 === 0) hora12 = 12;
+                let horaStr12 = String(hora12).padStart(2, '0') + ':' + mm + ' ' + ampm;
+
+                opt.innerText = horaStr12;
+                selectHora.appendChild(opt);
+            });
         }
 
         function renderCalendar() {
@@ -636,6 +701,7 @@
                     selectedDateStr = dateStr;
                     mostrarDetallesDia(dateStr);
                     document.getElementById('fecha').value = dateStr;
+                    actualizarOpcionesHorarios(dateStr);
                 });
 
                 grid.appendChild(cell);
@@ -645,29 +711,41 @@
         function mostrarDetallesDia(dateStr) {
             const title = document.getElementById('detailsTitle');
             const content = document.getElementById('detailsContent');
+            const adminActions = document.getElementById('adminDayActions');
             const [anio, mes, dia] = dateStr.split('-');
+            
             title.innerText = `Horarios: ${dia}/${mes}/${anio}`;
+            adminActions.innerHTML = '';
+
+            if (isAdminMode) {
+                const btnBloquearDia = document.createElement('button');
+                btnBloquearDia.className = 'btn-action-small';
+                btnBloquearDia.innerText = "🚫 Bloquear Día Completo";
+                btnBloquearDia.onclick = () => bloquearDiaCompleto(dateStr);
+                adminActions.appendChild(btnBloquearDia);
+            }
 
             const filtradas = citas.filter(c => c.fecha === dateStr)
                                    .sort((a,b) => a.hora.localeCompare(b.hora));
 
             if (filtradas.length === 0) {
-                content.innerHTML = "No hay reservas registradas para este día.";
+                content.innerHTML = "No hay reservas ni bloqueos registrados para este día.";
                 return;
             }
 
             content.innerHTML = '';
             filtradas.forEach(cita => {
                 const item = document.createElement('div');
-                item.className = 'booking-item';
+                const esBloqueo = cita.servicio === 'BLOQUEADO';
+                item.className = `booking-item ${esBloqueo ? 'blocked' : ''}`;
 
                 if (isAdminMode) {
                     item.innerHTML = `
                         <div class="booking-info">
-                            <strong>⏰ ${cita.hora} hrs — ${cita.nombre}</strong>
-                            <small>📞 ${cita.telefono} | 💇 ${cita.servicio}</small>
+                            <strong>⏰ ${cita.hora} hrs — ${esBloqueo ? '🚫 HORARIO BLOQUEADO' : cita.nombre}</strong>
+                            <small>${esBloqueo ? 'No disponible para clientes' : `📞 ${cita.telefono} | 💇 ${cita.servicio}`}</small>
                         </div>
-                        <button class="delete-btn" onclick="eliminarCita('${cita.id}')">Cancelar</button>
+                        <button class="delete-btn" onclick="eliminarCita('${cita.id}')">${esBloqueo ? 'Desbloquear' : 'Cancelar'}</button>
                     `;
                 } else {
                     item.innerHTML = `
@@ -690,6 +768,8 @@
             document.getElementById('nombreMesAnio').innerText = `Mes (${mesesNames[new Date().getMonth()]})`;
 
             citas.forEach(cita => {
+                if (cita.servicio === 'BLOQUEADO') return; // No contar bloqueos como ingresos
+
                 const valor = (cita.servicio.includes("Barba") || cita.servicio.includes("10.000")) ? 10000 : 8000;
                 totalHistorico += valor;
                 if (cita.fecha === hoyStr) totalHoy += valor;
@@ -714,8 +794,15 @@
             const fecha = document.getElementById('fecha').value;
             const hora = document.getElementById('hora').value;
 
+            if (!hora) {
+                alert("Por favor selecciona una hora válida.");
+                btn.disabled = false;
+                btn.innerText = "Reservar Hora";
+                return;
+            }
+
             if (citas.some(c => c.fecha === fecha && c.hora === hora)) {
-                alert("Este horario ya está ocupado.");
+                alert("Este horario ya fue ocupado reciéntemente.");
                 btn.disabled = false;
                 btn.innerText = "Reservar Hora";
                 return;
@@ -738,8 +825,35 @@
             }
         }
 
+        async function bloquearDiaCompleto(fecha) {
+            if (!confirm(`¿Bloquear todas las horas libres del día ${fecha}?`)) return;
+
+            const horasOcupadas = citas.filter(c => c.fecha === fecha).map(c => c.hora);
+            const horasABloquear = ALL_HOURS.filter(h => !horasOcupadas.includes(h));
+
+            if (horasABloquear.length === 0) {
+                alert("Todas las horas de este día ya se encuentran reservadas o bloqueadas.");
+                return;
+            }
+
+            const bloqueos = horasABloquear.map(hora => ({
+                nombre: 'ADMIN',
+                telefono: '00000000',
+                servicio: 'BLOQUEADO',
+                fecha: fecha,
+                hora: hora
+            }));
+
+            const { error } = await supabaseClient.from('reservas').insert(bloqueos);
+            if (error) {
+                alert("Error al bloquear el día: " + error.message);
+            } else {
+                await cargarCitasDesdeSupabase();
+            }
+        }
+
         window.eliminarCita = async function(id) {
-            if (confirm("¿Cancelar esta reserva?")) {
+            if (confirm("¿Cancelar/Desbloquear esta reserva?")) {
                 const { error } = await supabaseClient.from('reservas').delete().eq('id', id);
                 if (error) { alert("Error: " + error.message); return; }
                 await cargarCitasDesdeSupabase();
